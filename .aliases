@@ -1,0 +1,13 @@
+alias edithosts='sudo nano /etc/hosts'
+
+alias finger-me='finger $USER'
+
+alias reload-zsh='source ~/.zshrc'
+
+alias what-the-fuck-is-going-on='btop'
+alias who-the-fuck-am-i='whoami'
+alias who-the-fuck-is-that='finger'
+
+if [ -d ~/webdev ]; then
+  alias cdwebdev='cd ~/webdev'
+fi
