@@ -5,6 +5,7 @@ alias finger-me='finger $USER'
 alias reload-zsh='source ~/.zshrc'
 
 alias what-the-fuck-is-going-on='btop'
+alias where-the-fuck-am-i='pwd'
 alias who-the-fuck-am-i='whoami'
 alias who-the-fuck-is-that='finger'
 
