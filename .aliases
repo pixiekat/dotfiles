@@ -4,6 +4,18 @@ alias finger-me='finger $USER'
 
 alias reload-zsh='source ~/.zshrc'
 
+alias restart-apache='sudo systemctl reload apache2'
+alias restart-php='sudo systemctl reload php8.3-fpm'
+
+alias start-apache='sudo systemctl start apache2'
+alias start-php='sudo systemctl start php8.3-fpm'
+
+alias status-apache='sudo systemctl status apache2'
+alias status-php='sudo systemctl status php8.3-fpm'
+
+alias stop-apache='sudo systemctl stop apache2'
+alias stop-php='sudo systemctl stop php8.3-fpm'
+
 alias what-the-fuck-is-going-on='btop'
 alias where-the-fuck-am-i='pwd'
 alias who-the-fuck-am-i='whoami'
