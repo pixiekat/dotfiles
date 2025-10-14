@@ -4,6 +4,8 @@ alias finger-me='finger $USER'
 
 alias reload-zsh='source ~/.zshrc'
 
+alias refresh-dns-caches='sudo resolvectl flush-caches'
+
 alias restart-apache='sudo systemctl reload apache2'
 alias restart-php='sudo systemctl reload php8.3-fpm'
 
@@ -24,3 +26,8 @@ alias who-the-fuck-is-that='finger'
 if [ -d ~/webdev ]; then
   alias cdwebdev='cd ~/webdev'
 fi
+
+if [ -d /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads ]; then
+  alias cddownloads='cd /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads'
+fi
+
