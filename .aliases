@@ -1,5 +1,9 @@
 alias edithosts='sudo nano /etc/hosts'
 
+if [ -d /var/www/html/filterlists ]; then
+  alias editlivevpnexclusions='sudo nano /var/www/html/filterlists/vpn-exclusions.txt'
+fi
+
 alias finger-me='finger $USER'
 
 alias reload-zsh='source ~/.zshrc'
