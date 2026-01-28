@@ -35,3 +35,5 @@ if [ -d /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads ]; then
   alias cddownloads='cd /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads'
 fi
 
+alias doctrine-force='php bin/console doctrine:schema:update --force'
+alias doctrine-dump='php bin/console doctrine:schema:update --dump-sql'
