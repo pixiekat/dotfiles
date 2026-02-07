@@ -1,0 +1,30 @@
+{
+  "default": true,
+
+  "MD013": {
+    "line_length": 119,
+    "heading_line_length": 119,
+    "code_block_line_length": 0,
+    "tables": false,
+    "strict": false
+  },
+
+  "MD033": false,
+  "MD041": false,
+
+  "MD046": {
+    "style": "fenced"
+  },
+
+  "MD024": {
+    "siblings_only": true
+  },
+
+  "MD007": {
+    "indent": 2
+  },
+
+  "MD029": {
+    "style": "ordered"
+  }
+}
