@@ -58,3 +58,33 @@ fi
 
 alias doctrine-force='php bin/console doctrine:schema:update --force'
 alias doctrine-dump='php bin/console doctrine:schema:update --dump-sql'
+
+ytgrab() {
+  local id="$1"
+  local res="${2:-480}"   # default to 480 if not supplied
+  local url="https://www.youtube.com/watch?v=$id"
+
+  # probe formats
+  local fmt
+  fmt=$(yt-dlp -F --cookies-from-browser vivaldi "$url")
+
+  # show it exactly like before
+  echo "$fmt"
+
+  # pick video format matching the requested resolution
+  local vfmt
+  vfmt=$(echo "$fmt" | awk -v r="${res}p" '$0 ~ r && /video/ {print $1}' | head -n1)
+
+  # pick best m4a audio
+  local afmt
+  afmt=$(echo "$fmt" | awk '/m4a/ && /audio/ {print $1}' | head -n1)
+
+  # safety check
+  if [ -z "$vfmt" ] || [ -z "$afmt" ]; then
+    echo "Could not find matching formats (video ${res}p or m4a audio)."
+    return 1
+  fi
+
+  echo fetching: yt-dlp -f ${vfmt}+${afmt} --cookies-from-browser vivaldi --write-subs --no-write-auto-subs --sub-lang "en.*" $url
+  yt-dlp -f "${vfmt}+${afmt}" --write-subs --cookies-from-browser vivaldi --no-write-auto-subs --sub-lang "en.*" "$url"
+}
