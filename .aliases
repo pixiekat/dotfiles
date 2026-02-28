@@ -59,6 +59,11 @@ fi
 alias doctrine-force='php bin/console doctrine:schema:update --force'
 alias doctrine-dump='php bin/console doctrine:schema:update --dump-sql'
 
+alias composer82='/usr/bin/php8.2 /usr/local/bin/composer'
+alias composer83='/usr/bin/php8.3 /usr/local/bin/composer'
+alias composer84='/usr/bin/php8.4 /usr/local/bin/composer'
+alias composer85='/usr/bin/php8.5 /usr/local/bin/composer'
+
 ytgrab() {
   local id="$1"
   local res="${2:-480}" # default to 480
