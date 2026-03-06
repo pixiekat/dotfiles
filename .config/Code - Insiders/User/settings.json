@@ -1,0 +1,67 @@
+{
+  "files.exclude": {
+    "**/.git": false
+  },
+  "redhat.telemetry.enabled": false,
+  "editor.wordWrap": "on",
+  "security.workspace.trust.untrustedFiles": "open",
+  "workbench.iconTheme": "catppuccin-frappe",
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [
+      110
+    ],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
+  },
+  "editor.fontFamily": "ComicShannsMono Nerd Font, Consolas, 'Courier New', monospace",
+  "dart.debugExternalPackageLibraries": true,
+  "dart.debugSdkLibraries": false,
+  "editor.tabSize": 2,
+  "php.debug.executablePath": "/usr/bin/php8.5",
+  "editor.accessibilitySupport": "off",
+  "github.copilot.editor.enableAutoCompletions": true,
+  "markdownlint.config": {
+    
+    
+    
+    "siblings_only": true,
+    "MD013": {
+      "line_length": 110,
+      "heading_line_length": 110,
+      "code_block_line_length": 110,
+      "tables": true,
+      "headings": true
+    }
+  },
+  "workbench.colorTheme": "SynthWave '84",
+  "settingsSync.ignoredExtensions": [],
+  "editor.multiCursorModifier": "ctrlCmd",
+  "chat.commandCenter.enabled": false,
+  "github.copilot.advanced": {},
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "claudeCode.preferredLocation": "panel",
+  "chat.tools.terminal.outputLocation": "chat",
+  "markdownlint.severityForError": "Warning",
+  "markdownlint.severityForWarning": "Warning",
+  "markdownlint.run": "onType",
+  "json.schemaDownload.trustedDomains": {
+    "https://developer.microsoft.com/json-schemas/": true,
+    "https://esm.sh/": true,
+    "https://esm.sh/gh/catppuccin/vscode%40catppuccin-vsc-v3.18.1/packages/catppuccin-vsc/schemas/customUIColors.schema.json": true,
+    "https://json-schema.org/": true,
+    "https://json.schemastore.org/": true,
+    "https://raw.githubusercontent.com": true,
+    "https://raw.githubusercontent.com/devcontainers/spec/": true,
+    "https://raw.githubusercontent.com/microsoft/vscode/": true,
+    "https://schemastore.azurewebsites.net/": true,
+    "https://www.schemastore.org/": true
+  }
+}
