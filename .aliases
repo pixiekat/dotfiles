@@ -19,7 +19,7 @@ alias reload-zsh='source ~/.zshrc'
 alias reload-bash='source ~/.bashrc'
 
 if [ -z "${BASH_VERSINFO+x}" ]; then
-  alias reload-shell='echo "Reloading ZSH..." && source ~/.zshrc'
+  alias reload-shell='echo "Reloading ZSH..." && omz reload'
 else
   alias reload-shell='echo "Reloading Bash..." && source ~/.bashrc'
 fi
@@ -51,6 +51,11 @@ alias who-the-fuck-is-that='finger'
 if [ -d ~/webdev ]; then
   alias cdwebdev='cd ~/webdev'
 fi
+
+alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+alias reload-user-daemon='systemctl daemon-reload --user'
+alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 
 if [ -d /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads ]; then
   alias cddownloads='cd /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads'
