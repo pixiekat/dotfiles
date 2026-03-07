@@ -9,10 +9,6 @@ service_exists() {
 
 alias edithosts='sudo nano /etc/hosts'
 
-if [ -d /var/www/html/filterlists ]; then
-  alias editlivevpnexclusions='sudo nano /var/www/html/filterlists/vpn-exclusions.txt'
-fi
-
 alias finger-me='finger $USER'
 
 alias reload-zsh='source ~/.zshrc'
@@ -57,10 +53,6 @@ alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service 
 alias reload-user-daemon='systemctl daemon-reload --user'
 alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 
-if [ -d /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads ]; then
-  alias cddownloads='cd /mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Downloads'
-fi
-
 alias doctrine-force='php bin/console doctrine:schema:update --force'
 alias doctrine-dump='php bin/console doctrine:schema:update --dump-sql'
 
@@ -68,6 +60,10 @@ alias composer82='/usr/bin/php8.2 /usr/local/bin/composer'
 alias composer83='/usr/bin/php8.3 /usr/local/bin/composer'
 alias composer84='/usr/bin/php8.4 /usr/local/bin/composer'
 alias composer85='/usr/bin/php8.5 /usr/local/bin/composer'
+
+if [ -f ~/.aliases_private ]; then
+  source ~/.aliases_private
+fi
 
 ytgrab() {
   local id="$1"
