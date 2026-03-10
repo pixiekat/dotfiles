@@ -44,9 +44,23 @@ alias where-the-fuck-am-i='pwd'
 alias who-the-fuck-am-i='whoami'
 alias who-the-fuck-is-that='finger'
 
+alias dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+
 if [ -d ~/webdev ]; then
   alias cdwebdev='cd ~/webdev'
 fi
+
+# Ollama aliases
+# Only show if docker and docker exec -it ollama ollama is reachable
+#if [ -x "$(command -v docker)" ] && [ -x "$(command -v docker exec -it ollama ollama)" ]; then
+  alias ollama-ls='docker exec -it ollama ollama ls'
+  alias ollama-run='docker exec -it ollama ollama run'
+#fi
+
+# Docker aliases
+alias docker-ps='docker ps'
+alias docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+alias dcdev='docker-compose-dev'
 
 alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
 alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'

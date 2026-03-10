@@ -22,6 +22,7 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 # Add or remove entries as your repo grows
 DOTFILES=(
     .config/Code\ -\ Insiders/User/settings.json
+    .local/bin/toggle-camera.sh
     .aliases
     .bashrc
     .bash_aliases
@@ -79,12 +80,39 @@ for file in "${DOTFILES[@]}"; do
     # If something already exists at the destination, back it up
     if [[ -e "$dest" || -L "$dest" ]]; then
         info "Backing up existing: $dest"
+
+        # dirname strips the filename, leaving just the directory path.
+        # e.g. $BACKUP_DIR/.local/bin/toggle-camera.sh -> $BACKUP_DIR/.local/bin
+        backup_dest_dir="$(dirname "$BACKUP_DIR/$file")"
+
+        # Create that subdirectory tree if it doesn't already exist.
+        # -p means "create parents as needed, no error if already exists"
+        if [[ ! -d "$backup_dest_dir" ]]; then
+            mkdir -p "$backup_dest_dir"
+            info "Created backup subdir: $backup_dest_dir"
+        fi
+
         mv "$dest" "$BACKUP_DIR/$file"
+        success "Backed up: $dest"
     fi
 
     # Create the symlink
     ln -s "$src" "$dest"
     success "Linked: $dest -> $src"
+
+    # ---------------------------------------------------------------------------
+    # -- Shell script detection -------------------------------------------------
+    # Check 1: Does the filename end in .sh?
+    # Check 2: Does the first line contain a shell shebang? (#!/bin/bash, #!/usr/bin/env bash, etc.)
+    # 'head -n 1' reads only the first line — no need to load the whole file.
+    # The regex [[ "$src" == *.sh ]] matches the file extension.
+    # grep -qE does a quiet (-q) extended regex (-E) match — exits 0 if found.
+    first_line="$(head -n 1 "$src" 2>/dev/null)"
+
+    if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
+        chmod u+x "$src"
+        success "Marked executable: $src"
+    fi
 
 done
 
@@ -98,3 +126,9 @@ info "Installation complete."
 info "Backups (if any) are in: $BACKUP_DIR"
 echo ""
 echo "Review your shell with: source ~/.bashrc"
+
+if [ -z "${BASH_VERSINFO+x}" ]; then
+    info "Review your shell with: omz reload"
+else
+    info "Review your shell with: source ~/.bashrc"
+fi
