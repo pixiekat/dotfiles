@@ -23,6 +23,7 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 DOTFILES=(
     .config/Code\ -\ Insiders/User/settings.json
     .local/bin/toggle-camera.sh
+    .local/bin/backup-home-to-storagebox.sh
     .aliases
     .bashrc
     .bash_aliases
@@ -67,7 +68,6 @@ info "Backup directory: $BACKUP_DIR"
 # -- Main installation loop -------------------------------------------------
 
 for file in "${DOTFILES[@]}"; do
-
     src="$DOTFILES_DIR/$file"
     dest="$HOME/$file"
 
@@ -125,7 +125,6 @@ echo ""
 info "Installation complete."
 info "Backups (if any) are in: $BACKUP_DIR"
 echo ""
-echo "Review your shell with: source ~/.bashrc"
 
 if [ -z "${BASH_VERSINFO+x}" ]; then
     info "Review your shell with: omz reload"
