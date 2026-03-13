@@ -43,6 +43,19 @@ ytgrab() {
   local res="${2:-480}" # default to 480
   local url="https://www.youtube.com/watch?v=$id"
 
+  # provide help for --help and --usage flags
+  if [[ "$id" == "--help" || "$id" == "--usage" ]]; then
+    echo "Usage: ytgrab <youtube_id> [resolution]"
+    echo "Example: ytgrab dQw4w9WgXcQ 720"
+    return 0
+  fi
+
+  # if we don't have an id, bail out
+  if [ -z "$id" ]; then
+    echo "Usage: ytgrab <youtube_id> [resolution]"
+    return 1
+  fi
+
   # fetch formats
   local fmt
   fmt=$(yt-dlp -F --cookies-from-browser vivaldi "$url")
