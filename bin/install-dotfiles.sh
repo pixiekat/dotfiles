@@ -22,16 +22,17 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 # Add or remove entries as your repo grows
 DOTFILES=(
     .config/Code\ -\ Insiders/User/settings.json
-    .local/bin/toggle-camera.sh
     .local/bin/backup-home-to-storagebox.sh
+    .local/bin/toggle-camera.sh
     .aliases
-    .bashrc
     .bash_aliases
     .bash_profile
-    .inputrc
-    .vimrc
+    .bashrc
+    .functions
     .gitconfig
     .gitignore_global
+    .inputrc
+    .vimrc
     .zshrc
 )
 

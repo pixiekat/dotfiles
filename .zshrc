@@ -107,6 +107,10 @@ if [ -f  ~/.aliases ]; then
   source ~/.aliases
 fi
 
+if [ -f  ~/.functions ]; then
+  source ~/.functions
+fi
+
 if [ -d ~/.deno ]; then
   . "/home/katy/.deno/env"
 fi
