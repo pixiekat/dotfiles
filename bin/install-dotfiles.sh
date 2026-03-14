@@ -12,8 +12,18 @@
 
 # -- Configuration ----------------------------------------------------------
 
-# Absolute path to your cloned dotfiles repository
-DOTFILES_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+# Use webdev/projects/codeberg/pixiekat/dotfiles as the source of truth for where the dotfiles are located.
+# else check to see $HOME/dotfiles
+# else fail with an error message asking the user to clone their dotfiles repo to one of those locations.
+if [ -d "$HOME/webdev/projects/codeberg/pixiekat/dotfiles" ]; then
+    DOTFILES_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+elif [ -d "$HOME/dotfiles" ]; then
+    DOTFILES_DIR="$HOME/dotfiles"
+else
+    echo "Error: Dotfiles directory not found at $HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+    echo "Please clone your dotfiles repo there first, then re-run this script."
+    exit 1
+fi
 
 # Where to store backups of any pre-existing dotfiles that get replaced
 BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
