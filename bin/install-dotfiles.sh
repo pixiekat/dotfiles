@@ -21,6 +21,7 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 # List of dotfiles to symlink into $HOME
 # Add or remove entries as your repo grows
 DOTFILES=(
+    .cache/oh-my-posh/themes/iranian-solidarity.omp.json
     .config/Code\ -\ Insiders/User/settings.json
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
