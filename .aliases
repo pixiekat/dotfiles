@@ -75,6 +75,28 @@ alias composer83='/usr/bin/php8.3 /usr/local/bin/composer'
 alias composer84='/usr/bin/php8.4 /usr/local/bin/composer'
 alias composer85='/usr/bin/php8.5 /usr/local/bin/composer'
 
+if [ -d ~/.zoom/data/cefcache ]; then
+  alias zoom-clear-cache='rm -rf ~/.zoom/data/cefcache/ && mkdir -p ~/.zoom/data/cefcache'
+fi
+
+# function to nuclear reset zoom data with a confirmation prompt
+if [ -d ~/.zoom/data ]; then
+  alias zoom-reset='_zoom_reset'
+fi
+
+_zoom_reset() {
+  echo -n "Are you sure you want to reset all Zoom data? This cannot be undone. (y/N) "
+  read -n 1 REPLY
+  echo # move to a new line after the user input
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    rm -rf ~/.zoom/data/*
+    mkdir -p ~/.zoom/data
+    echo "Zoom data has been reset."
+  else
+    echo "Zoom reset cancelled."
+  fi
+}
+
 if [ -f ~/.aliases_private ]; then
   source ~/.aliases_private
 fi
