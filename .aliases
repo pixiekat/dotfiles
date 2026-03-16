@@ -43,6 +43,8 @@ alias what-the-fuck-is-going-on='btop'
 alias where-the-fuck-am-i='pwd'
 alias who-the-fuck-am-i='whoami'
 alias who-the-fuck-is-that='finger'
+alias finger-me='finger $(whoami)'
+alias buy-a-girl-a-drink-first='finger-me'
 
 alias dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
 
