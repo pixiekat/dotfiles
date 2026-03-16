@@ -46,7 +46,7 @@ alias who-the-fuck-is-that='finger'
 alias finger-me='finger $(whoami)'
 alias buy-a-girl-a-drink-first='finger-me'
 
-alias dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+alias pixiekat-dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
 
 if [ -d ~/webdev ]; then
   alias cdwebdev='cd ~/webdev'
@@ -60,9 +60,9 @@ fi
 #fi
 
 # Docker aliases
-alias docker-ps='docker ps'
-alias docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
-alias dcdev='docker-compose-dev'
+alias pixiekat-docker-ps='docker ps'
+alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+alias pixiekat-dcdev='pixiekat-docker-compose-dev'
 
 alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
 alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'

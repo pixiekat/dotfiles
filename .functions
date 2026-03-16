@@ -1,4 +1,5 @@
-_dc_resolve_dir() {
+# helper function to resolve a service name to a docker compose directory
+_pixiekat_dc_resolve_dir() {
   local service=$1
   case $service in
     mailpit)  echo "mailpit" ;;
@@ -8,37 +9,103 @@ _dc_resolve_dir() {
   esac
 }
 
-dcup() {
+# helper function to resolve php version and doctrine command for the doctrine aliases
+_pixiekat_doctrine_preflight() {
+  # if --help or --usage is passed, show usage and exit
+  if [[ "$1" == "--help" || "$1" == "--usage" ]]; then
+    echo "Usage: $2 [php_command]"
+    echo "Example: $2 php8.3"
+    return 1  # use 1 so callers can check with || return 0
+  fi
+  # validate the php command exists before running
+  if [ ! -x "$(command -v ${3:-$(command -v php)})" ]; then
+    echo "PHP command not found: $3"
+    return 1
+  fi
+  # check we're in a symfony project
+  if [ ! -f bin/console ]; then
+    echo "No bin/console here — are you in a Symfony project?"
+    return 1
+  fi
+}
+
+# adds a given site to vpn-exclusions.txt on the local network filterlist. Usage: pixiekat-add-vpn-exclusion example.com
+# use to quickly add a site without having to add -> commit -> push to the filterlist repo then pull on the server
+pixiekat-add-vpn-exclusion() {
+  if [ -z "$1" ]; then
+    echo "Usage: pixiekat-add-vpn-exclusion example.com"
+    return 1
+  fi
+  # also worth checking the file exists before appending
+  if [ ! -f /var/www/html/filterlists/vpn-exclusions.txt ]; then
+    echo "VPN exclusions file not found."
+    return 1
+  fi
+
+  echo "$1" | sudo tee -a /var/www/html/filterlists/vpn-exclusions.txt > /dev/null
+  echo "Added $1 to VPN exclusions."
+}
+
+# doctrine functions
+pixiekat-doctrine-dump-sql() {
+  _pixiekat_doctrine_preflight "$1" "doctrine-dump-sql" || return 1
+
+  # get the current cli php version as a local which which php
+  local default_php_cmd=$(which php)
+
+  # use the current cli php by default unless argument is provided
+  local php_cmd="${1:-$default_php_cmd}"
+
+  # run the doctrine force command with the specified or default php command
+  $php_cmd bin/console doctrine:schema:update --complete --dump-sql
+}
+
+pixiekat-doctrine-force() {
+  _pixiekat_doctrine_preflight "$1" "doctrine-force" || return 1
+
+  # get the current cli php version as a local which which php
+  local default_php_cmd=$(which php)
+
+  # use the current cli php by default unless argument is provided
+  local php_cmd="${1:-$default_php_cmd}"
+
+  # run the doctrine force command with the specified or default php command
+  $php_cmd bin/console doctrine:schema:update --force
+}
+
+# docker compose functions
+pixiekat-dcup() {
   local dir
-  dir=$(_dc_resolve_dir "$1") || return 1
+  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
   docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml up -d
 }
 
-dcdown() {
+pixiekat-dcdown() {
   local dir
-  dir=$(_dc_resolve_dir "$1") || return 1
+  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
   docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml down
 }
 
-dcstop() {
+pixiekat-dcstop() {
   local dir
-  dir=$(_dc_resolve_dir "$1") || return 1
+  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
   docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml stop
 }
 
-dcstart() {
+pixiekat-dcstart() {
   local dir
-  dir=$(_dc_resolve_dir "$1") || return 1
+  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
   docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml start
 }
 
-dcpull() {
+pixiekat-dcpull() {
   local dir
-  dir=$(_dc_resolve_dir "$1") || return 1
+  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
   docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml pull
 }
 
-ytgrab() {
+# grabs a youtube video by id at a given resolution (default 480p)
+pixiekat-ytgrab() {
   local id="$1"
   local res="${2:-480}" # default to 480
   local url="https://www.youtube.com/watch?v=$id"
@@ -79,4 +146,18 @@ ytgrab() {
 
   echo fetching: yt-dlp -f ${vfmt}+${afmt} --cookies-from-browser vivaldi --write-subs --no-write-auto-subs --sub-lang "en.*" $url
   yt-dlp -f "${vfmt}+${afmt}" --write-subs --cookies-from-browser vivaldi --no-write-auto-subs --sub-lang "en.*" "$url"
+}
+
+# function to nuclear reset zoom folder
+_zoom_reset() {
+  echo -n "Are you sure you want to reset all Zoom data? This cannot be undone. (y/N) "
+  read -n 1 REPLY
+  echo # move to a new line after the user input
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    rm -rf ~/.zoom/data/*
+    mkdir -p ~/.zoom/data
+    echo "Zoom data has been reset."
+  else
+    echo "Zoom reset cancelled."
+  fi
 }
