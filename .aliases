@@ -72,35 +72,29 @@ alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service 
 alias reload-user-daemon='systemctl daemon-reload --user'
 alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 
-alias doctrine-force='php bin/console doctrine:schema:update --force'
-alias doctrine-dump='php bin/console doctrine:schema:update --dump-sql'
-
-alias composer82='/usr/bin/php8.2 /usr/local/bin/composer'
-alias composer83='/usr/bin/php8.3 /usr/local/bin/composer'
-alias composer84='/usr/bin/php8.4 /usr/local/bin/composer'
-alias composer85='/usr/bin/php8.5 /usr/local/bin/composer'
+# does composer exist? if so, add some aliases
+if [ -x "$(command -v composer)" ]; then
+  #does php 8.2 exist? if so, add some aliases
+  if [ -x "$(command -v php8.2)" ]; then
+    alias composer82='php8.2 /usr/local/bin/composer'
+  fi
+  #does php 8.3 exist? if so, add some aliases
+  if [ -x "$(command -v php8.3)" ]; then
+    alias composer83='php8.3 /usr/local/bin/composer'
+  fi
+  #does php 8.4 exist? if so, add some aliases
+  if [ -x "$(command -v php8.4)" ]; then
+    alias composer84='php8.4 /usr/local/bin/composer'
+  fi
+  #does php 8.5 exist? if so, add some aliases
+  if [ -x "$(command -v php8.5)" ]; then
+    alias composer85='php8.5 /usr/local/bin/composer'
+  fi
+fi
 
 if [ -d ~/.zoom/data/cefcache ]; then
   alias zoom-clear-cache='rm -rf ~/.zoom/data/cefcache/ && mkdir -p ~/.zoom/data/cefcache'
 fi
-
-# function to nuclear reset zoom data with a confirmation prompt
-if [ -d ~/.zoom/data ]; then
-  alias zoom-reset='_zoom_reset'
-fi
-
-_zoom_reset() {
-  echo -n "Are you sure you want to reset all Zoom data? This cannot be undone. (y/N) "
-  read -n 1 REPLY
-  echo # move to a new line after the user input
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rm -rf ~/.zoom/data/*
-    mkdir -p ~/.zoom/data
-    echo "Zoom data has been reset."
-  else
-    echo "Zoom reset cancelled."
-  fi
-}
 
 if [ -f ~/.aliases_private ]; then
   source ~/.aliases_private
