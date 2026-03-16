@@ -70,7 +70,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(docker docker-compose git)
 
 if [ -f $ZSH/oh-my-zsh.sh ]; then
   source $ZSH/oh-my-zsh.sh
@@ -127,6 +127,7 @@ fi
 PATH=$PATH:$HOME/.yarn/bin:$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$HOME/.cargo/bin:$HOME/.local/thunderbird:$HOME/.symfony5/bin
 
 #eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/M365Princess.omp.json)"
-eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/iranian-solidarity.omp.json)"
+#eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/iranian-solidarity.omp.json)"
+eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/hunk.omp.json)"
 
 typeset -U PATH
