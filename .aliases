@@ -46,6 +46,9 @@ alias who-the-fuck-is-that='finger'
 alias finger-me='finger $(whoami)'
 alias buy-a-girl-a-drink-first='finger-me'
 
+alias vpn-exclusions-status='git -C /var/www/html/filterlists status vpn-exclusions.txt'
+alias vpn-exclusions-diff='git -C /var/www/html/filterlists diff vpn-exclusions.txt'
+
 alias pixiekat-dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
 
 if [ -d ~/webdev ]; then
