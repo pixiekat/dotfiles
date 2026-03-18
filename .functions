@@ -10,14 +10,15 @@ _pixiekat_dc_resolve_dir() {
 }
 
 _pixiekat_resolve_dotfiles_dir() {
-  # resolve the directory of this script, even if it's a symlink
-  local source="${BASH_SOURCE[0]}"
-  while [ -h "$source" ]; do
-    local dir="$( cd -P "$( dirname "$source" )" >/dev/null 2>&1 && pwd )"
-    source="$(readlink "$source")"
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  echo "$( cd -P "$( dirname "$source" )" >/dev/null 2>&1 && pwd )"
+  # return the path to the dotfiles directory
+  # if ~/webdev/projects exists then we assume we're on a local machine and want to clone to ~/webdev/projects/codeberg/pixiekat/dotfiles to keep it separate from the home directory and avoid accidentally messing with it, but if that path doesn't exist we assume we're on the server and clone directly to ~/dotfiles
+  if [ -d "$HOME/webdev/projects" ]; then
+    dotfiles_dir="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+  else
+    dotfiles_dir="$HOME/dotfiles"
+  fi
+  echo "Resolved dotfiles directory: $dotfiles_dir" >&2
+  echo "$dotfiles_dir"
 }
 
 # helper function to resolve php version and doctrine command for the doctrine aliases
@@ -193,10 +194,16 @@ pixiekat-dotfiles-init() {
 }
 
 pixiekat-dotfiles-update() {
+  # save the current directory so we can return to it later
+  local current_dir=$(pwd)
+
   cd "$(_pixiekat_resolve_dotfiles_dir)"
   git pull
   # update submodules to latest on their tracked branch
   git submodule update --remote --recursive
+
+  # return to the original directory
+  cd "$current_dir"
 }
   
 pixiekat-dotfiles-link() {
