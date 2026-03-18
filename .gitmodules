@@ -1,0 +1,6 @@
+[submodule ".config/btop/themes/rose-pine"]
+	path = .config/btop/themes/rose-pine
+	url = https://github.com/rose-pine/btop
+[submodule ".config/btop/themes/eldritch-theme"]
+	path = .config/btop/themes/eldritch-theme
+	url = https://github.com/eldritch-theme/btop.git

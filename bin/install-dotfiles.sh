@@ -35,6 +35,11 @@ DOTFILES=(
     .config/Code\ -\ Insiders/User/settings.json
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
+    .config/btop/btop.conf
+    .config/btop/themes/eldritch-theme/eldritch.theme
+    .config/btop/themes/rose-pine/rose-pine-dawn.theme
+    .config/btop/themes/rose-pine/rose-pine-moon.theme
+    .config/btop/themes/rose-pine/rose-pine.theme
     .aliases
     .bash_aliases
     .bash_profile
@@ -120,6 +125,13 @@ for file in "${DOTFILES[@]}"; do
     # The regex [[ "$src" == *.sh ]] matches the file extension.
     # grep -qE does a quiet (-q) extended regex (-E) match — exits 0 if found.
     first_line="$(head -n 1 "$src" 2>/dev/null)"
+
+    if [[ "$src" == *"btop/themes"* && "$src" == *".theme" ]]; then
+        mkdir -p "$HOME/.config/btop/themes"
+        ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
+        success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
+        continue
+    fi
 
     if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
         chmod u+x "$src"
