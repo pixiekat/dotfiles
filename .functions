@@ -163,10 +163,10 @@ _zoom_reset() {
 }
 
 # dotfiles installation and updates
-pixiekat-init-dotfiles() {
+pixiekat-dotfiles-init() {
   if [ -d "$HOME/dotfiles" ]; then
-      echo "dotfiles already exists, aborting!"
-      return 1
+    echo "dotfiles already exists, aborting!"
+    return 1
   fi
   git clone https://codeberg.org/pixiekat/dotfiles ~/dotfiles
   cd ~/dotfiles
@@ -174,13 +174,13 @@ pixiekat-init-dotfiles() {
   ~/dotfiles/install.sh
 }
 
-pixiekat-update-dotfiles() {
+pixiekat-dotfiles-update() {
   cd ~/dotfiles
   git pull
   # update submodules to latest on their tracked branch
   git submodule update --remote --recursive
 }
 
-pixiekat-link-dotfiles() {
+pixiekat-dotfiles-link() {
   ~/dotfiles/install.sh
 }
