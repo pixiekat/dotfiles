@@ -175,23 +175,30 @@ _zoom_reset() {
 
 # dotfiles installation and updates
 pixiekat-dotfiles-init() {
-  if [ -d "$HOME/dotfiles" ]; then
+  # if ~/webdev/projects exists then we assume we're on a local machine and want to clone to ~/webdev/projects/codeberg/pixiekat/dotfiles to keep it separate from the home directory and avoid accidentally messing with it, but if that path doesn't exist we assume we're on the server and clone directly to ~/dotfiles
+  if [ -d "$HOME/webdev/projects" ]; then
+    dotfiles_dir="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+  else
+    dotfiles_dir="$HOME/dotfiles"
+  fi
+
+  if [ -d "$dotfiles_dir" ]; then
     echo "dotfiles already exists, aborting!"
     return 1
   fi
-  git clone https://codeberg.org/pixiekat/dotfiles ~/dotfiles
-  cd ~/dotfiles
+  git clone https://codeberg.org/pixiekat/dotfiles "$dotfiles_dir"
+  cd "$dotfiles_dir"
   git submodule update --init --recursive
-  ~/dotfiles/install.sh
+  "$dotfiles_dir/install.sh"
 }
 
 pixiekat-dotfiles-update() {
-  cd ~/dotfiles
+  cd "$(_pixiekat_resolve_dotfiles_dir)"
   git pull
   # update submodules to latest on their tracked branch
   git submodule update --remote --recursive
 }
-
+  
 pixiekat-dotfiles-link() {
-  cd $(_pixiekat_resolve_dotfiles_dir) && ./bin/install-dotfiles.sh
+  $(_pixiekat_resolve_dotfiles_dir)/bin/install-dotfiles.sh
 }
