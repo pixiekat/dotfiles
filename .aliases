@@ -72,6 +72,11 @@ alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service 
 alias reload-user-daemon='systemctl daemon-reload --user'
 alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 
+# hyfetch, if exists, aliases
+if [ -x "$(command -v hyfetch)" ]; then
+  alias blahajfetch='hyfetch -p --transgender'
+fi
+
 # does composer exist? if so, add some aliases
 if [ -x "$(command -v composer)" ]; then
   #does php 8.2 exist? if so, add some aliases
