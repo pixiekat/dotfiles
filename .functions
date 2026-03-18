@@ -182,5 +182,5 @@ pixiekat-dotfiles-update() {
 }
 
 pixiekat-dotfiles-link() {
-  ~/dotfiles/install.sh
+  cd $HOME/dotfiles && ./bin/install.sh
 }
