@@ -135,6 +135,8 @@ for file in "${DOTFILES[@]}"; do
     fi
 
     # Create the symlink
+    # ensure directory exists for the destination
+    mkdir -p "$(dirname "$dest")"
     ln -s "$src" "$dest"
     success "Linked: $dest -> $src"
 
