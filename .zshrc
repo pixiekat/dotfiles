@@ -124,7 +124,30 @@ if [ -d ~/.nvm ]; then
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 fi
 
-PATH=$PATH:$HOME/.yarn/bin:$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$HOME/.cargo/bin:$HOME/.local/thunderbird:$HOME/.symfony5/bin
+# add ~/.local/bin to the PATH if it exists
+if [ -d "$HOME/.local/bin" ]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# add ~/.config/composer/vendor/bin to the PATH if it exists
+if [ -d "$HOME/.config/composer/vendor/bin" ]; then
+  export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+fi
+
+# add ~/.cargo/bin to the PATH if it exists
+if [ -d "$HOME/.cargo/bin" ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
+# add ~/.symfony5/bin to the PATH if it exists
+if [ -d "$HOME/.symfony5/bin" ]; then
+  export PATH="$HOME/.symfony5/bin:$PATH"
+fi
+
+# add ~/.yarn/bin to the PATH if it exists
+if [ -d "$HOME/.yarn/bin" ]; then
+  export PATH="$HOME/.yarn/bin:$PATH"
+fi
 
 # if oh-my-posh is installed, initialise it based on hostname.
 if [ -x "$(command -v oh-my-posh)" ]; then
