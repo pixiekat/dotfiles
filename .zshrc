@@ -130,17 +130,17 @@ PATH=$PATH:$HOME/.yarn/bin:$HOME/.local/bin:$HOME/.config/composer/vendor/bin:$H
 if [ -x "$(command -v oh-my-posh)" ]; then
   case "$(hostname)" in
     "debian-8gb-hel1-1")
-      local theme_name="clean-detailed"
+      theme_name="clean-detailed"
       ;;
     "naelaedra")
-      local theme_name="hunk"
+      theme_name="hunk"
       ;;
     *)
-      local theme_name="M365Princess"
+      theme_name="M365Princess"
       ;;
   esac
-fi
 
-eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
+  eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
+fi
 
 typeset -U PATH
