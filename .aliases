@@ -74,7 +74,7 @@ alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --use
 
 # hyfetch, if exists, aliases
 if [ -x "$(command -v hyfetch)" ]; then
-  alias blahajfetch='hyfetch -p --transgender'
+  alias blahajfetch='hyfetch -p transgender'
 fi
 
 # does composer exist? if so, add some aliases
