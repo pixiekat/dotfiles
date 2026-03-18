@@ -9,6 +9,17 @@ _pixiekat_dc_resolve_dir() {
   esac
 }
 
+_pixiekat_resolve_dotfiles_dir() {
+  # resolve the directory of this script, even if it's a symlink
+  local source="${BASH_SOURCE[0]}"
+  while [ -h "$source" ]; do
+    local dir="$( cd -P "$( dirname "$source" )" >/dev/null 2>&1 && pwd )"
+    source="$(readlink "$source")"
+    [[ $source != /* ]] && source="$dir/$source"
+  done
+  echo "$( cd -P "$( dirname "$source" )" >/dev/null 2>&1 && pwd )"
+}
+
 # helper function to resolve php version and doctrine command for the doctrine aliases
 _pixiekat_doctrine_preflight() {
   # if --help or --usage is passed, show usage and exit
@@ -182,5 +193,5 @@ pixiekat-dotfiles-update() {
 }
 
 pixiekat-dotfiles-link() {
-  cd $HOME/dotfiles && ./bin/install.sh
+  cd $(_pixiekat_resolve_dotfiles_dir) && ./bin/install-dotfiles.sh
 }
