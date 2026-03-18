@@ -113,10 +113,6 @@ for file in "${DOTFILES[@]}"; do
         success "Backed up: $dest"
     fi
 
-    # Create the symlink
-    ln -s "$src" "$dest"
-    success "Linked: $dest -> $src"
-
     # ---------------------------------------------------------------------------
     # -- Shell script detection -------------------------------------------------
     # Check 1: Does the filename end in .sh?
@@ -137,6 +133,10 @@ for file in "${DOTFILES[@]}"; do
         chmod u+x "$src"
         success "Marked executable: $src"
     fi
+
+    # Create the symlink
+    ln -s "$src" "$dest"
+    success "Linked: $dest -> $src"
 
 done
 
