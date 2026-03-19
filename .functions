@@ -199,8 +199,17 @@ pixiekat-dotfiles-update() {
 
   cd "$(_pixiekat_resolve_dotfiles_dir)"
   git pull
-  # update submodules to latest on their tracked branch
-  git submodule update --remote --recursive
+
+  # return to the original directory
+  cd "$current_dir"
+}
+
+pixiekat-dotfiles-submodule-update() {
+  # save the current directory so we can return to it later
+  local current_dir=$(pwd)
+
+  cd "$(_pixiekat_resolve_dotfiles_dir)"
+  git submodule update --init --recursive
 
   # return to the original directory
   cd "$current_dir"
