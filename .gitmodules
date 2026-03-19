@@ -4,3 +4,6 @@
 [submodule ".config/btop/themes/eldritch-theme"]
 	path = .config/btop/themes/eldritch-theme
 	url = https://github.com/eldritch-theme/btop.git
+[submodule ".config/btop/themes/catppuccin"]
+	path = .config/btop/themes/catppuccin
+	url = https://github.com/catppuccin/btop.git

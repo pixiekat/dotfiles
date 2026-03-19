@@ -36,6 +36,10 @@ DOTFILES=(
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
     .config/btop/btop.conf
+    .config/btop/themes/catppuccin/themes/catppuccin_frappe.theme
+    .config/btop/themes/catppuccin/themes/catppuccin_latte.theme
+    .config/btop/themes/catppuccin/themes/catppuccin_macchiato.theme
+    .config/btop/themes/catppuccin/themes/catppuccin_mocha.theme
     .config/btop/themes/eldritch-theme/eldritch.theme
     .config/btop/themes/rose-pine/rose-pine-dawn.theme
     .config/btop/themes/rose-pine/rose-pine-moon.theme
