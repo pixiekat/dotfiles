@@ -153,10 +153,13 @@ fi
 if [ -x "$(command -v oh-my-posh)" ]; then
   case "$(hostname)" in
     "debian-8gb-hel1-1")
-      theme_name="clean-detailed"
+      theme_name="1_shell"
       ;;
     "naelaedra")
       theme_name="hunk"
+      ;;
+    "tyrande")
+      theme_name="neko"
       ;;
     *)
       theme_name="M365Princess"
