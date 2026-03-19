@@ -7,10 +7,6 @@ service_exists() {
   fi
 }
 
-alias edithosts='sudo nano /etc/hosts'
-
-alias finger-me='finger $USER'
-
 alias reload-zsh='source ~/.zshrc'
 alias reload-bash='source ~/.bashrc'
 
@@ -19,13 +15,6 @@ if [ -z "${BASH_VERSINFO+x}" ]; then
 else
   alias reload-shell='echo "Reloading Bash..." && source ~/.bashrc'
 fi
-
-alias jellystart='sudo systemctl start jellyfin'
-alias jellystop='sudo systemctl stop jellyfin'
-alias jellyrestart='sudo systemctl restart jellyfin'
-alias jellystatus='sudo systemctl status jellyfin'
-
-alias refresh-dns-caches='sudo resolvectl flush-caches'
 
 alias restart-apache='sudo systemctl reload apache2'
 alias restart-php='sudo systemctl reload php8.3-fpm'
@@ -39,38 +28,81 @@ alias status-php='sudo systemctl status php8.3-fpm'
 alias stop-apache='sudo systemctl stop apache2'
 alias stop-php='sudo systemctl stop php8.3-fpm'
 
-alias what-the-fuck-is-going-on='btop'
-alias where-the-fuck-am-i='pwd'
-alias who-the-fuck-am-i='whoami'
-alias who-the-fuck-is-that='finger'
-alias finger-me='finger $(whoami)'
-alias buy-a-girl-a-drink-first='finger-me'
+# this should exist but we still want to check
+if [ -f /etc/hosts ]; then
+  alias pixiekat-edit-hosts='sudo nano /etc/hosts'
+fi
 
-alias vpn-exclusions-status='git -C /var/www/html/filterlists status vpn-exclusions.txt'
-alias vpn-exclusions-diff='git -C /var/www/html/filterlists diff vpn-exclusions.txt'
+# does btop exist?
+if [ -x "$(command -v btop)" ]; then
+  alias what-the-fuck-is-going-on='btop'
+fi
 
-alias pixiekat-dcdev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+# does pwd exist?
+if [ -x "$(command -v pwd)" ]; then
+  alias where-the-fuck-am-i='pwd'
+fi
+
+# does whoami exist?
+if [ -x "$(command -v whoami)" ]; then
+  alias who-the-fuck-am-i='whoami'
+fi
+
+# does finger exist?
+if [ -x "$(command -v finger)" ]; then
+  alias finger-me='finger $USER'
+  alias who-the-fuck-is-that='finger'
+  alias finger-me='finger $(whoami)'
+  alias buy-a-girl-a-drink-first='finger-me'
+fi
+
+# we checkout filterlists to localhost so we can use it in our vpn-exclusions
+# if that directory exists, then add aliases
+if [ -d /var/www/html/filterlists ]; then
+  alias vpn-exclusions-edit-live='sudo nano /var/www/html/filterlists/vpn-exclusions.txt'
+  alias vpn-exclusions-status='git -C /var/www/html/filterlists status vpn-exclusions.txt'
+  alias vpn-exclusions-diff='git -C /var/www/html/filterlists diff vpn-exclusions.txt'
+fi
 
 if [ -d ~/webdev ]; then
   alias cdwebdev='cd ~/webdev'
 fi
 
-# Ollama aliases
-# Only show if docker and docker exec -it ollama ollama is reachable
-#if [ -x "$(command -v docker)" ] && [ -x "$(command -v docker exec -it ollama ollama)" ]; then
-  alias ollama-ls='docker exec -it ollama ollama ls'
-  alias ollama-run='docker exec -it ollama ollama run'
-#fi
+# does docker exist?
+if [ -x "$(command -v docker)" ]; then
 
-# Docker aliases
-alias pixiekat-docker-ps='docker ps'
-alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
-alias pixiekat-dcdev='pixiekat-docker-compose-dev'
+  # use docker ps -a --filter "name=ollama" to determine if ollama container is running
+  if [ -n "$(docker ps -a --filter "name=ollama" --format '{{.Names}}')" ]; then
+    alias ollama-ls='docker exec -it ollama ollama ls'
+    alias ollama-run='docker exec -it ollama ollama run'
+  fi
 
-alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
-alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
-alias reload-user-daemon='systemctl daemon-reload --user'
-alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
+  alias pixiekat-docker-ps='docker ps'
+  alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+  alias pixiekat-dcdev='pixiekat-docker-compose-dev'
+
+fi
+
+# does jellyfin exist?
+if [ -x "$(command -v jellyfin)" ]; then
+  alias jellystart='sudo systemctl start jellyfin'
+  alias jellystop='sudo systemctl stop jellyfin'
+  alias jellyrestart='sudo systemctl restart jellyfin'
+  alias jellystatus='sudo systemctl status jellyfin'
+fi
+
+# does resolvectl exist?
+if [ -x "$(command -v resolvectl)" ]; then
+  alias refresh-dns-caches='sudo resolvectl flush-caches'
+fi
+
+# does rclone exist?
+if [ -x "$(command -v rclone)" ]; then
+  alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+  alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+  alias reload-user-daemon='systemctl daemon-reload --user'
+  alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
+fi
 
 # hyfetch, if exists, aliases
 if [ -x "$(command -v hyfetch)" ]; then
