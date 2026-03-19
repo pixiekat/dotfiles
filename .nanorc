@@ -1,0 +1,28 @@
+# ── behaviour ────────────────────────────────────────────────
+set autoindent
+set atblanks
+set casesensitive
+set constantshow
+set cutfromcursor
+set historylog
+set indicator
+set linenumbers
+set minibar
+set nohelp
+set positionlog
+set smarthome
+set softwrap
+set speller "aspell -x -c"
+# set suspend
+# NOTE: Removed in nano 7.x; CTRL+Z suspend is now always enabled by default.
+# Kept here for reference in case of older nano versions.
+set tabsize 2
+set tabstospaces
+set zap
+
+# ── backups ────────────────────────────────────────────────
+set backup
+set backupdir "~/.cache/nano/backups/"
+
+# ── syntax highlighting ───────────────────────────────────────
+include "/usr/share/nano/*.nanorc"
