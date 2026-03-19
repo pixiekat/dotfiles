@@ -4,8 +4,35 @@
 # Place in ~/.local/bin/ and chmod +x
 # Run manually first to verify before scheduling
 
-MOUNT="$HOME/mnt/storagebox"
-DEVICE_NAME="device-"$(hostname)
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --mount)
+            MOUNT="$2"
+            shift 2
+            ;;
+        --device-name)
+            DEVICE_NAME="$2"
+            shift 2
+            ;;
+        --help|-h)
+            echo "Usage: $0 [--mount MOUNT_POINT] [--device-name DEVICE_NAME]"
+            echo "  --mount MOUNT_POINT         Path where storagebox is mounted (default: $HOME/mnt/storagebox)"
+            echo "  --device-name DEVICE_NAME   Name to identify this device in the backup (default: device-$(hostname))"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Set defaults AFTER parsing so flags take precedence
+MOUNT="${MOUNT:-$HOME/mnt/storagebox}"
+DEVICE_NAME="${DEVICE_NAME:-device-$(hostname)}"
+
 BACKUP_DEST="$MOUNT/archives/devices/$DEVICE_NAME/home"
 LOG_DIR="$HOME/.local/log"
 LOG="$LOG_DIR/backup-$DEVICE_NAME-home-to-storagebox.log"
