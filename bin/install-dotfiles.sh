@@ -13,16 +13,16 @@
 # -- Configuration ----------------------------------------------------------
 
 # Use webdev/projects/codeberg/pixiekat/dotfiles as the source of truth for where the dotfiles are located.
-# else check to see $HOME/dotfiles
-# else fail with an error message asking the user to clone their dotfiles repo to one of those locations.
+# else check to see $HOME/dotfiles else fail with an error message asking the user to clone their dotfiles 
+# repo to one of those locations.
 if [ -d "$HOME/webdev/projects/codeberg/pixiekat/dotfiles" ]; then
-    DOTFILES_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+  DOTFILES_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
 elif [ -d "$HOME/dotfiles" ]; then
-    DOTFILES_DIR="$HOME/dotfiles"
+  DOTFILES_DIR="$HOME/dotfiles"
 else
-    echo "Error: Dotfiles directory not found at $HOME/webdev/projects/codeberg/pixiekat/dotfiles"
-    echo "Please clone your dotfiles repo there first, then re-run this script."
-    exit 1
+  echo "Error: Dotfiles directory not found at $HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+  echo "Please clone your dotfiles repo there first, then re-run this script."
+  exit 1
 fi
 
 # Where to store backups of any pre-existing dotfiles that get replaced
@@ -31,29 +31,29 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 # List of dotfiles to symlink into $HOME
 # Add or remove entries as your repo grows
 DOTFILES=(
-    .cache/oh-my-posh/themes/iranian-solidarity.omp.json
-    .config/Code\ -\ Insiders/User/settings.json
-    .local/bin/backup-home-to-storagebox.sh
-    .local/bin/toggle-camera.sh
-    .config/btop/btop.conf
-    .config/btop/themes/catppuccin/themes/catppuccin_frappe.theme
-    .config/btop/themes/catppuccin/themes/catppuccin_latte.theme
-    .config/btop/themes/catppuccin/themes/catppuccin_macchiato.theme
-    .config/btop/themes/catppuccin/themes/catppuccin_mocha.theme
-    .config/btop/themes/eldritch-theme/eldritch.theme
-    .config/btop/themes/rose-pine/rose-pine-dawn.theme
-    .config/btop/themes/rose-pine/rose-pine-moon.theme
-    .config/btop/themes/rose-pine/rose-pine.theme
-    .aliases
-    .bash_aliases
-    .bash_profile
-    .bashrc
-    .functions
-    .gitconfig
-    .gitignore_global
-    .inputrc
-    .vimrc
-    .zshrc
+  .cache/oh-my-posh/themes/iranian-solidarity.omp.json
+  .config/Code\ -\ Insiders/User/settings.json
+  .local/bin/backup-home-to-storagebox.sh
+  .local/bin/toggle-camera.sh
+  .config/btop/btop.conf
+  .config/btop/themes/catppuccin/themes/catppuccin_frappe.theme
+  .config/btop/themes/catppuccin/themes/catppuccin_latte.theme
+  .config/btop/themes/catppuccin/themes/catppuccin_macchiato.theme
+  .config/btop/themes/catppuccin/themes/catppuccin_mocha.theme
+  .config/btop/themes/eldritch-theme/eldritch.theme
+  .config/btop/themes/rose-pine/rose-pine-dawn.theme
+  .config/btop/themes/rose-pine/rose-pine-moon.theme
+  .config/btop/themes/rose-pine/rose-pine.theme
+  .aliases
+  .bash_aliases
+  .bash_profile
+  .bashrc
+  .functions
+  .gitconfig
+  .gitignore_global
+  .inputrc
+  .vimrc
+  .zshrc
 )
 
 # ---------------------------------------------------------------------------
@@ -89,60 +89,60 @@ info "Backup directory: $BACKUP_DIR"
 # -- Main installation loop -------------------------------------------------
 
 for file in "${DOTFILES[@]}"; do
-    src="$DOTFILES_DIR/$file"
-    dest="$HOME/$file"
+  src="$DOTFILES_DIR/$file"
+  dest="$HOME/$file"
 
-    # Skip if the source file doesn't exist in the repo
-    if [[ ! -f "$src" ]]; then
-        warn "Source not found in repo, skipping: $file"
-        continue
+  # Skip if the source file doesn't exist in the repo
+  if [[ ! -f "$src" ]]; then
+    warn "Source not found in repo, skipping: $file"
+    continue
+  fi
+
+  # If something already exists at the destination, back it up
+  if [[ -e "$dest" || -L "$dest" ]]; then
+    info "Backing up existing: $dest"
+
+    # dirname strips the filename, leaving just the directory path.
+    # e.g. $BACKUP_DIR/.local/bin/toggle-camera.sh -> $BACKUP_DIR/.local/bin
+    backup_dest_dir="$(dirname "$BACKUP_DIR/$file")"
+
+    # Create that subdirectory tree if it doesn't already exist.
+    # -p means "create parents as needed, no error if already exists"
+    if [[ ! -d "$backup_dest_dir" ]]; then
+      mkdir -p "$backup_dest_dir"
+      info "Created backup subdir: $backup_dest_dir"
     fi
 
-    # If something already exists at the destination, back it up
-    if [[ -e "$dest" || -L "$dest" ]]; then
-        info "Backing up existing: $dest"
+    mv "$dest" "$BACKUP_DIR/$file"
+    success "Backed up: $dest"
+  fi
 
-        # dirname strips the filename, leaving just the directory path.
-        # e.g. $BACKUP_DIR/.local/bin/toggle-camera.sh -> $BACKUP_DIR/.local/bin
-        backup_dest_dir="$(dirname "$BACKUP_DIR/$file")"
+  # ---------------------------------------------------------------------------
+  # -- Shell script detection -------------------------------------------------
+  # Check 1: Does the filename end in .sh?
+  # Check 2: Does the first line contain a shell shebang? (#!/bin/bash, #!/usr/bin/env bash, etc.)
+  # 'head -n 1' reads only the first line — no need to load the whole file.
+  # The regex [[ "$src" == *.sh ]] matches the file extension.
+  # grep -qE does a quiet (-q) extended regex (-E) match — exits 0 if found.
+  first_line="$(head -n 1 "$src" 2>/dev/null)"
 
-        # Create that subdirectory tree if it doesn't already exist.
-        # -p means "create parents as needed, no error if already exists"
-        if [[ ! -d "$backup_dest_dir" ]]; then
-            mkdir -p "$backup_dest_dir"
-            info "Created backup subdir: $backup_dest_dir"
-        fi
+  if [[ "$src" == *"btop/themes"* && "$src" == *".theme" ]]; then
+    mkdir -p "$HOME/.config/btop/themes"
+    ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
+    success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
+    continue
+  fi
 
-        mv "$dest" "$BACKUP_DIR/$file"
-        success "Backed up: $dest"
-    fi
+  if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
+    chmod u+x "$src"
+    success "Marked executable: $src"
+  fi
 
-    # ---------------------------------------------------------------------------
-    # -- Shell script detection -------------------------------------------------
-    # Check 1: Does the filename end in .sh?
-    # Check 2: Does the first line contain a shell shebang? (#!/bin/bash, #!/usr/bin/env bash, etc.)
-    # 'head -n 1' reads only the first line — no need to load the whole file.
-    # The regex [[ "$src" == *.sh ]] matches the file extension.
-    # grep -qE does a quiet (-q) extended regex (-E) match — exits 0 if found.
-    first_line="$(head -n 1 "$src" 2>/dev/null)"
-
-    if [[ "$src" == *"btop/themes"* && "$src" == *".theme" ]]; then
-        mkdir -p "$HOME/.config/btop/themes"
-        ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
-        success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
-        continue
-    fi
-
-    if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
-        chmod u+x "$src"
-        success "Marked executable: $src"
-    fi
-
-    # Create the symlink
-    # ensure directory exists for the destination
-    mkdir -p "$(dirname "$dest")"
-    ln -s "$src" "$dest"
-    success "Linked: $dest -> $src"
+  # Create the symlink
+  # ensure directory exists for the destination
+  mkdir -p "$(dirname "$dest")"
+  ln -s "$src" "$dest"
+  success "Linked: $dest -> $src"
 
 done
 
@@ -157,7 +157,7 @@ info "Backups (if any) are in: $BACKUP_DIR"
 echo ""
 
 if [ -z "${BASH_VERSINFO+x}" ]; then
-    info "Review your shell with: omz reload"
+  info "Review your shell with: omz reload"
 else
-    info "Review your shell with: source ~/.bashrc"
+  info "Review your shell with: source ~/.bashrc"
 fi
