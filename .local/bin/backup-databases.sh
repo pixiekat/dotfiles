@@ -18,8 +18,14 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --database-password)
-            DATABASE_PASSWORD="$2"
-            shift 2
+            if [[ -z "$2" || "$2" == --* ]]; then
+                # flag passed but no value — treat as empty/prompt
+                DATABASE_PASSWORD=""
+                shift 1
+            else
+                DATABASE_PASSWORD="$2"
+                shift 2
+            fi
             ;;
         --days-to-keep)
             DAYS_TO_KEEP="$2"
@@ -48,20 +54,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 DATABASE_USER="${DATABASE_USER:-}"
-DATABASE_PASSWORD="${DATABASE_PASSWORD:-}"
+#DATABASE_PASSWORD="${DATABASE_PASSWORD:-}"
 DATE_FORMAT=${DATE_FORMAT:-%Y%m%d_%H%M%S}
 DATE=$(date +"$DATE_FORMAT")
 DAYS_TO_KEEP=${DAYS_TO_KEEP:-7}
 BACKUP_DIR=${BACKUP_DIR:-$HOME/backup/sql}
 RSYNC_DESTINATION=${RSYNC_DESTINATION:-}
 
-#STORAGEBOX="u123456@u123456.your-storagebox.de"
-
 # DATABASE_USER is the only "required"; if there's no $HOME/.my.cnf. Fail with message.
 if [[ -z "$DATABASE_USER" && ! -f "$HOME/.my.cnf" ]]; then
     echo "Error: No database credentials found. Please either:"
     echo "  - Create $HOME/.my.cnf with your MariaDB credentials, or"
-    echo "  - Pass --database-user (leave --database-password empty to be prompted securely)"
+    echo "  - Pass --database-user "
+    echo "  - (leave --database-password empty or exclude it to be prompted securely)"
     exit 1
 fi
 
@@ -100,7 +105,13 @@ elif [[ -n "$DATABASE_USER" ]]; then
 fi
 
 # Password handling
-if [[ -v DATABASE_PASSWORD && -z "$DATABASE_PASSWORD" ]]; then
+if [[ ! -v DATABASE_PASSWORD ]]; then
+    # no --database-password flag, rely on .my.cnf or no auth
+    # but if there's no .my.cnf either, prompt for password (since we know from preflight checks that there are no credentials)
+    if [[ ! -f "$HOME/.my.cnf" ]]; then
+        DUMP_ARGS="$DUMP_ARGS -p"
+    fi
+elif [[ -v DATABASE_PASSWORD && -z "$DATABASE_PASSWORD" ]]; then
     # --database-password was passed but empty, prompt
     DUMP_ARGS="$DUMP_ARGS -p"
 elif [[ -n "$DATABASE_PASSWORD" ]]; then
@@ -109,19 +120,23 @@ elif [[ -n "$DATABASE_PASSWORD" ]]; then
 fi
 # if DATABASE_PASSWORD not set at all, no -p flag (relies on defaults file or no auth)
 
-mysqldump $DUMP_ARGS > "$BACKUP_DIR/all-dbs_$DATE.sql"
+mysqldump $DUMP_ARGS > "$BACKUP_DIR/all-dbs_$DATE.sql" || {
+    echo "Error: mysqldump failed!"
+    rm -f "$BACKUP_DIR/all-dbs_$DATE.sql"
+    exit 1
+}
 
 # Compress it
-gzip $BACKUP_DIR/all-dbs_$DATE.sql
+if [ -f "$BACKUP_DIR/all-dbs_$DATE.sql" ]; then
+    gzip "$BACKUP_DIR/all-dbs_$DATE.sql"
+else
+    echo "Error: Backup file not found after mysqldump: $BACKUP_DIR/all-dbs_$DATE.sql"
+    exit 1
+fi
 
 if [[ -n "$RSYNC_DESTINATION" ]]; then
     rsync -avz --delete "$BACKUP_DIR/" "$RSYNC_DESTINATION"
 fi
 
-# Rsync to Storagebox
-#rsync -avz --delete \
-#  $BACKUP_DIR/ \
-#  $STORAGEBOX:/backups/debian-hel1/
-
-# Clean up local backups older than $DAYS_TO_KEEP days
+# Clean up local backups older than $DAYS_TO_KEEP days, only .sql.gz files to be safe
 find $BACKUP_DIR -name "*.sql.gz" -mtime +$DAYS_TO_KEEP -delete
