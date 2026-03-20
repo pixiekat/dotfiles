@@ -47,7 +47,6 @@ DOTFILES=(
     .config/Code\ -\ Insiders/User/settings.json
     .functions
     .gitconfig
-    .gitignore_global
     .inputrc
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
@@ -90,6 +89,10 @@ fi
 # Create the backup directory (only if we'll actually need it)
 mkdir -p "$BACKUP_DIR"
 info "Backup directory: $BACKUP_DIR"
+
+if [[ ! -f "$HOME/.gitconfig.local" ]]; then
+    warn ".gitconfig.local not found — copy .gitconfig.local.example and fill in your details!"
+fi
 
 # ---------------------------------------------------------------------------
 
