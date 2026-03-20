@@ -95,7 +95,7 @@ else
 fi
 
 # Build mysqldump connection args conditionally
-DUMP_ARGS="--socket=/var/run/mysqld/mysqld.sock --all-databases"
+DUMP_ARGS="--socket=/var/run/mysqld/mysqld.sock"
 
 # Only add --defaults-file if it exists and no user/pass provided
 if [[ -z "$DATABASE_USER" && -f "$HOME/.my.cnf" ]]; then
@@ -120,25 +120,38 @@ elif [[ -n "$DATABASE_PASSWORD" ]]; then
 fi
 # if DATABASE_PASSWORD not set at all, no -p flag (relies on defaults file or no auth)
 
-mysqldump $DUMP_ARGS > "$BACKUP_DIR/all-dbs_$DATE.sql" || {
-    echo "Error: mysqldump failed!"
-    rm -f "$BACKUP_DIR/all-dbs_$DATE.sql"
+# get list of databases, excluding system ones
+ALL_DBS=$(mysql $DUMP_ARGS -e "SHOW DATABASES;" | grep -Ev "Database|information_schema|performance_schema|sys|mysql")
+
+# Create tmp directory for individual dumps
+TMP_DIR=$(mktemp -d "$BACKUP_DIR/tmp_dbs_XXXXXX")
+
+# Dump each database individually
+while IFS= read -r DB; do
+    echo "Dumping database: $DB"
+    mysqldump $DUMP_ARGS "$DB" > "$TMP_DIR/${DB}_$DATE.sql" || {
+        echo "Error: mysqldump failed for $DB!"
+        rm -rf "$TMP_DIR"
+        exit 1
+    }
+done <<< "$ALL_DBS"
+
+# Archive all individual dumps into a single tar.gz in the backup directory
+ARCHIVE="$BACKUP_DIR/all-dbs_$DATE.tar.gz"
+tar -czf "$ARCHIVE" -C "$TMP_DIR" $(cd "$TMP_DIR" && ls *.sql) || {
+    echo "Error: tar failed!"
+    rm -rf "$TMP_DIR"
     exit 1
 }
 
-# Compress it
-if [ -f "$BACKUP_DIR/all-dbs_$DATE.sql" ]; then
-    gzip "$BACKUP_DIR/all-dbs_$DATE.sql"
-else
-    echo "Error: Backup file not found after mysqldump: $BACKUP_DIR/all-dbs_$DATE.sql"
-    exit 1
-fi
+# Clean up tmp directory and individual dump files
+rm -rf "$TMP_DIR"
 
-# Clean up local backups older than $DAYS_TO_KEEP days, only .sql.gz files to be safe
-find $BACKUP_DIR -name "*.sql.gz" -mtime +$DAYS_TO_KEEP -delete
+# Clean up local backups older than $DAYS_TO_KEEP days
+#find "$BACKUP_DIR" -name "*.tar.gz" -mtime +"$DAYS_TO_KEEP" -delete
 
 if [[ -n "$RSYNC_DESTINATION" ]]; then
-    rsync -avz -e "ssh -p 23" "$BACKUP_DIR/all-dbs_$DATE.sql.gz" "$RSYNC_DESTINATION/" || {
+    rsync -avz -e "ssh -p 23" "$ARCHIVE" "$RSYNC_DESTINATION/" || {
         echo "Error: rsync failed!"
         exit 1
     }
