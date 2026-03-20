@@ -25,14 +25,19 @@ while [[ $# -gt 0 ]]; do
             DAYS_TO_KEEP="$2"
             shift 2
             ;;
+        --rsync-destination)
+            RSYNC_DESTINATION="$2"
+            shift 2
+            ;;
 
         --help|-h)
-            echo "Usage: $0 [--backup-dir BACKUP_DIR] [--date-format DATE_FORMAT] [--database-user DATABASE_USER] [--database-password DATABASE_PASSWORD] [--days-to-keep DAYS_TO_KEEP]"
+            echo "Usage: $0 [--backup-dir BACKUP_DIR] [--date-format DATE_FORMAT] [--database-user DATABASE_USER] [--database-password DATABASE_PASSWORD] [--days-to-keep DAYS_TO_KEEP] [--rsync-destination RSYNC_DESTINATION]"
             echo "  --backup-dir BACKUP_DIR     Path where backups will be stored (default: $HOME/backup/sql)"
             echo "  --date-format DATE_FORMAT   Date format for backup files (default: %Y%m%d_%H%M%S)"
             echo "  --database-user DATABASE_USER User to connect to MariaDB (default: $USER)"
             echo "  --database-password DATABASE_PASSWORD Password for MariaDB user (default: empty)"
             echo "  --days-to-keep DAYS_TO_KEEP Number of days to keep backups (default: 7)"
+            echo "  --rsync-destination RSYNC_DESTINATION Destination for rsyncing backups (default: none)"
             exit 0
             ;;
         *)
@@ -48,6 +53,8 @@ DATE_FORMAT=${DATE_FORMAT:-%Y%m%d_%H%M%S}
 DATE=$(date +"$DATE_FORMAT")
 DAYS_TO_KEEP=${DAYS_TO_KEEP:-7}
 BACKUP_DIR=${BACKUP_DIR:-$HOME/backup/sql}
+RSYNC_DESTINATION=${RSYNC_DESTINATION:-}
+
 #STORAGEBOX="u123456@u123456.your-storagebox.de"
 
 # DATABASE_USER is the only "required"; if there's no $HOME/.my.cnf. Fail with message.
@@ -106,6 +113,10 @@ mysqldump $DUMP_ARGS > "$BACKUP_DIR/all-dbs_$DATE.sql"
 
 # Compress it
 gzip $BACKUP_DIR/all-dbs_$DATE.sql
+
+if [[ -n "$RSYNC_DESTINATION" ]]; then
+    rsync -avz --delete "$BACKUP_DIR/" "$RSYNC_DESTINATION"
+fi
 
 # Rsync to Storagebox
 #rsync -avz --delete \
