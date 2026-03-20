@@ -45,6 +45,7 @@ DOTFILES=(
     .config/btop/themes/rose-pine/rose-pine-moon.theme
     .config/btop/themes/rose-pine/rose-pine.theme
     .config/Code\ -\ Insiders/User/settings.json
+    .config/hyfetch.json
     .functions
     .gitconfig
     .inputrc
