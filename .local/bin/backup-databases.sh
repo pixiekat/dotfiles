@@ -138,19 +138,15 @@ fi
 find $BACKUP_DIR -name "*.sql.gz" -mtime +$DAYS_TO_KEEP -delete
 
 if [[ -n "$RSYNC_DESTINATION" ]]; then
-    # rsync the new gzipped backup to the destination first without deleting old backups, so if there's an issue with the destination we still have the backup locally
-    rsync -avz "$BACKUP_DIR/all-dbs_$DATE.sql.gz" "$RSYNC_DESTINATION/" || {
+    rsync -avz -e "ssh -p 23" "$BACKUP_DIR/all-dbs_$DATE.sql.gz" "$RSYNC_DESTINATION/" || {
         echo "Error: rsync failed!"
         exit 1
     }
 
-    # then rsync with --delete to remove old backups from the destination, but only if the first rsync succeeded.
-    rsync -avz --delete "$BACKUP_DIR/" "$RSYNC_DESTINATION/" || {
+    rsync -avz --delete -e "ssh -p 23" "$BACKUP_DIR/" "$RSYNC_DESTINATION/" || {
         echo "Error: rsync cleanup failed!"
         exit 1
     }
-elif [[ -n "$RSYNC_DESTINATION" ]]; then
-    echo "Error: RSYNC_DESTINATION is set but empty. Skipping rsync."
 fi
 
 
