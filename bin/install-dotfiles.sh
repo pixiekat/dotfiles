@@ -170,8 +170,4 @@ info "Installation complete."
 info "Backups (if any) are in: $BACKUP_DIR"
 echo ""
 
-if [ -z "${BASH_VERSINFO+x}" ]; then
-    info "Review your shell with: omz reload"
-else
-    info "Review your shell with: source ~/.bashrc"
-fi
+info "Review your shell with: source ~/.zshrc or source ~/.bashrc"
