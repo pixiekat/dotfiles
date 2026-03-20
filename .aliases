@@ -21,109 +21,107 @@ alias stop-php='sudo systemctl stop php8.3-fpm'
 
 # this should exist but we still want to check
 if [ -f /etc/hosts ]; then
-  alias pixiekat-edit-hosts='sudo nano /etc/hosts'
+    alias pixiekat-edit-hosts='sudo nano /etc/hosts'
 fi
 
 # does btop exist?
 if [ -x "$(command -v btop)" ]; then
-  alias what-the-fuck-is-going-on='btop'
+    alias what-the-fuck-is-going-on='btop'
 fi
 
 # does pwd exist?
 if [ -x "$(command -v pwd)" ]; then
-  alias where-the-fuck-am-i='pwd'
+    alias where-the-fuck-am-i='pwd'
 fi
 
 # does whoami exist?
 if [ -x "$(command -v whoami)" ]; then
-  alias who-the-fuck-am-i='whoami'
+    alias who-the-fuck-am-i='whoami'
 fi
 
 # does finger exist?
 if [ -x "$(command -v finger)" ]; then
-  alias finger-me='finger $USER'
-  alias who-the-fuck-is-that='finger'
-  alias finger-me='finger $(whoami)'
-  alias buy-a-girl-a-drink-first='finger-me'
+    alias finger-me='finger $USER'
+    alias who-the-fuck-is-that='finger'
+    alias finger-me='finger $(whoami)'
+    alias buy-a-girl-a-drink-first='finger-me'
 fi
 
 # we checkout filterlists to localhost so we can use it in our vpn-exclusions
 # if that directory exists, then add aliases
 if [ -d /var/www/html/filterlists ]; then
-  alias vpn-exclusions-edit-live='sudo nano /var/www/html/filterlists/vpn-exclusions.txt'
-  alias vpn-exclusions-status='git -C /var/www/html/filterlists status vpn-exclusions.txt'
-  alias vpn-exclusions-diff='git -C /var/www/html/filterlists diff vpn-exclusions.txt'
+    alias vpn-exclusions-edit-live='sudo nano /var/www/html/filterlists/vpn-exclusions.txt'
+    alias vpn-exclusions-status='git -C /var/www/html/filterlists status vpn-exclusions.txt'
+    alias vpn-exclusions-diff='git -C /var/www/html/filterlists diff vpn-exclusions.txt'
 fi
 
 if [ -d ~/webdev ]; then
-  alias cdwebdev='cd ~/webdev'
+    alias cdwebdev='cd ~/webdev'
 fi
 
 # does docker exist?
 if [ -x "$(command -v docker)" ]; then
+    # use docker ps -a --filter "name=ollama" to determine if ollama container is running
+    if [ -n "$(docker ps -a --filter "name=ollama" --format '{{.Names}}')" ]; then
+        alias ollama-ls='docker exec -it ollama ollama ls'
+        alias ollama-run='docker exec -it ollama ollama run'
+    fi
 
-  # use docker ps -a --filter "name=ollama" to determine if ollama container is running
-  if [ -n "$(docker ps -a --filter "name=ollama" --format '{{.Names}}')" ]; then
-    alias ollama-ls='docker exec -it ollama ollama ls'
-    alias ollama-run='docker exec -it ollama ollama run'
-  fi
-
-  alias pixiekat-docker-ps='docker ps'
-  alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
-  alias pixiekat-dcdev='pixiekat-docker-compose-dev'
-
+    alias pixiekat-docker-ps='docker ps'
+    alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
+    alias pixiekat-dcdev='pixiekat-docker-compose-dev'
 fi
 
 # does jellyfin exist?
 if [ -x "$(command -v jellyfin)" ]; then
-  alias jellystart='sudo systemctl start jellyfin'
-  alias jellystop='sudo systemctl stop jellyfin'
-  alias jellyrestart='sudo systemctl restart jellyfin'
-  alias jellystatus='sudo systemctl status jellyfin'
+    alias jellystart='sudo systemctl start jellyfin'
+    alias jellystop='sudo systemctl stop jellyfin'
+    alias jellyrestart='sudo systemctl restart jellyfin'
+    alias jellystatus='sudo systemctl status jellyfin'
 fi
 
 # does resolvectl exist?
 if [ -x "$(command -v resolvectl)" ]; then
-  alias refresh-dns-caches='sudo resolvectl flush-caches'
+    alias refresh-dns-caches='sudo resolvectl flush-caches'
 fi
 
 # does rclone exist?
 if [ -x "$(command -v rclone)" ]; then
-  alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
-  alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
-  alias reload-user-daemon='systemctl daemon-reload --user'
-  alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
+    alias reload-rclone-shares='systemctl --user reload rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+    alias status-rclone-shares='systemctl --user status rclone-hetzner-sbox.service rclone-hetzner-media-sbox.service rclone-gdrive.service'
+    alias reload-user-daemon='systemctl daemon-reload --user'
+    alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 fi
 
 # hyfetch, if exists, aliases
 if [ -x "$(command -v hyfetch)" ]; then
-  alias blahajfetch='hyfetch -p transgender'
+    alias blahajfetch='hyfetch -p transgender'
 fi
 
 # does composer exist? if so, add some aliases
 if [ -x "$(command -v composer)" ]; then
-  #does php 8.2 exist? if so, add some aliases
-  if [ -x "$(command -v php8.2)" ]; then
-    alias composer82='php8.2 /usr/local/bin/composer'
-  fi
-  #does php 8.3 exist? if so, add some aliases
-  if [ -x "$(command -v php8.3)" ]; then
-    alias composer83='php8.3 /usr/local/bin/composer'
-  fi
-  #does php 8.4 exist? if so, add some aliases
-  if [ -x "$(command -v php8.4)" ]; then
-    alias composer84='php8.4 /usr/local/bin/composer'
-  fi
-  #does php 8.5 exist? if so, add some aliases
-  if [ -x "$(command -v php8.5)" ]; then
-    alias composer85='php8.5 /usr/local/bin/composer'
-  fi
+    #does php 8.2 exist? if so, add some aliases
+    if [ -x "$(command -v php8.2)" ]; then
+        alias composer82='php8.2 /usr/local/bin/composer'
+    fi
+    #does php 8.3 exist? if so, add some aliases
+    if [ -x "$(command -v php8.3)" ]; then
+        alias composer83='php8.3 /usr/local/bin/composer'
+    fi
+    #does php 8.4 exist? if so, add some aliases
+    if [ -x "$(command -v php8.4)" ]; then
+        alias composer84='php8.4 /usr/local/bin/composer'
+    fi
+    #does php 8.5 exist? if so, add some aliases
+    if [ -x "$(command -v php8.5)" ]; then
+        alias composer85='php8.5 /usr/local/bin/composer'
+    fi
 fi
 
 if [ -d ~/.zoom/data/cefcache ]; then
-  alias zoom-clear-cache='rm -rf ~/.zoom/data/cefcache/ && mkdir -p ~/.zoom/data/cefcache'
+    alias zoom-clear-cache='rm -rf ~/.zoom/data/cefcache/ && mkdir -p ~/.zoom/data/cefcache'
 fi
 
 if [ -f ~/.aliases_private ]; then
-  source ~/.aliases_private
+    source ~/.aliases_private
 fi
