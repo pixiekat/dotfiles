@@ -58,6 +58,19 @@ if [[ -z "$DATABASE_USER" && ! -f "$HOME/.my.cnf" ]]; then
     exit 1
 fi
 
+# If $HOME/.my.cnf doesn't exist, just warn and give the user a chance to add it before running for more secure and convenient backups (no password in process list or script)
+if [[ ! -f "$HOME/.my.cnf" ]]; then
+    echo "Warning: $HOME/.my.cnf not found. Recommended contents:"
+    cat <<EOF
+[client]
+user=$USER
+password=yourpassword
+socket=/var/run/mysqld/mysqld.sock
+EOF
+    echo "You can also use --database-user and --database-password flags, but be aware this may expose credentials in the process list."
+    echo "Proceeding anyway..."
+fi
+
 # Checks to see if backup directory is writable; if not, exits with an error
 if [ -d "$BACKUP_DIR" ]; then
     if [ ! -w "$BACKUP_DIR" ]; then
