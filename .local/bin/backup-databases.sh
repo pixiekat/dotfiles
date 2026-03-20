@@ -82,9 +82,27 @@ else
     mkdir -p "$BACKUP_DIR"
 fi
 
-# Dump all databases
-mysqldump -u $DATABASE_USER -p"$DATABASE_PASSWORD" --socket=/var/run/mysqld/mysqld.sock \
-  --all-databases > $BACKUP_DIR/all-dbs_$DATE.sql
+# Build mysqldump connection args conditionally
+DUMP_ARGS="--socket=/var/run/mysqld/mysqld.sock --all-databases"
+
+# Only add --defaults-file if it exists and no user/pass provided
+if [[ -z "$DATABASE_USER" && -f "$HOME/.my.cnf" ]]; then
+    DUMP_ARGS="--defaults-file=$HOME/.my.cnf $DUMP_ARGS"
+elif [[ -n "$DATABASE_USER" ]]; then
+    DUMP_ARGS="-u $DATABASE_USER $DUMP_ARGS"
+fi
+
+# Password handling
+if [[ -v DATABASE_PASSWORD && -z "$DATABASE_PASSWORD" ]]; then
+    # --database-password was passed but empty, prompt
+    DUMP_ARGS="$DUMP_ARGS -p"
+elif [[ -n "$DATABASE_PASSWORD" ]]; then
+    # password provided
+    DUMP_ARGS="$DUMP_ARGS -p$DATABASE_PASSWORD"
+fi
+# if DATABASE_PASSWORD not set at all, no -p flag (relies on defaults file or no auth)
+
+mysqldump $DUMP_ARGS > "$BACKUP_DIR/all-dbs_$DATE.sql"
 
 # Compress it
 gzip $BACKUP_DIR/all-dbs_$DATE.sql
