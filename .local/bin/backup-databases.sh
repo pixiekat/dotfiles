@@ -42,13 +42,21 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-DATABASE_USER="${DATABASE_USER:-$USER}"
+DATABASE_USER="${DATABASE_USER:-}"
 DATABASE_PASSWORD="${DATABASE_PASSWORD:-}"
 DATE_FORMAT=${DATE_FORMAT:-%Y%m%d_%H%M%S}
 DATE=$(date +"$DATE_FORMAT")
 DAYS_TO_KEEP=${DAYS_TO_KEEP:-7}
 BACKUP_DIR=${BACKUP_DIR:-$HOME/backup/sql}
 #STORAGEBOX="u123456@u123456.your-storagebox.de"
+
+# DATABASE_USER is the only "required"; if there's no $HOME/.my.cnf. Fail with message.
+if [[ -z "$DATABASE_USER" && ! -f "$HOME/.my.cnf" ]]; then
+    echo "Error: No database credentials found. Please either:"
+    echo "  - Create $HOME/.my.cnf with your MariaDB credentials, or"
+    echo "  - Pass --database-user (leave --database-password empty to be prompted securely)"
+    exit 1
+fi
 
 # Checks to see if backup directory is writable; if not, exits with an error
 if [ -d "$BACKUP_DIR" ]; then
