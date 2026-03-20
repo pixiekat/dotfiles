@@ -43,3 +43,8 @@ fi
 if [ -f "$HOME/.deno/env" ]; then
     . "$HOME/.deno/env"
 fi
+
+# Add bash-games to PATH, if they exist.
+if [ -d "$HOME/webdev/projects/codeberg/pixiekat/bash-games" ]; then
+    PATH="$HOME/webdev/projects/codeberg/pixiekat/bash-games:$PATH"
+fi
