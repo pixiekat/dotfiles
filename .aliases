@@ -30,7 +30,8 @@ if [ -x "$(command -v btop)" ]; then
 fi
 
 # does pwd exist?
-if [ -x "$(command -v pwd)" ]; then
+# check to see if pwd is available
+if type pwd &>/dev/null; then
     alias where-the-fuck-am-i='pwd'
 fi
 
