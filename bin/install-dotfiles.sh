@@ -58,6 +58,7 @@ DOTFILES=(
     .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    .profile
     .vimrc
     .zprofile
     .zshrc
