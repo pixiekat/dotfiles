@@ -96,30 +96,34 @@ alias l='ls -CF'
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+# Source aliases file if it exists
+if [ -f ~/.aliases ]; then
+    . ~/.aliases
 fi
 
-#alias medicine_prod='ssh LinuxAdmin@medicine.bidmc.org'
-#alias consult_prod='ssh Katherine@10.247.3.9'
-#alias vlachos_prod='ssh kebloom@145.223.74.205'
-#alias kate='/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=kate --file-forwarding org.kde.kate -b @@u %U @@'
+# Special alias to reload .bashrc
+alias reload-bash='source ~/.bashrc'
 
-#PATH=$PATH:$HOME/.yarn/bin:$HOME/.local/bin:$HOME/.symfony5/bin:$HOME/.cargo/bin
+# Source functions file if it exists
+if [ -f ~/.functions ]; then
+    . ~/.functions
+fi
 
-#eval "$(oh-my-posh --init --shell bash --config /home/katy/.poshthemes/catppuccin.omp.json)"
-#. "$HOME/.cargo/env"
-
-#export NVM_DIR="$HOME/.nvm"
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-#[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-#[ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
-
-chsh -s $(which zsh)
-. "/home/katy/.deno/env"
+# if oh-my-posh is installed, initialise it
+if [ -x "$(command -v oh-my-posh)" ]; then
+    case "$(hostname)" in
+    "debian-8gb-hel1-1")
+        theme_name="1_shell"
+        ;;
+    "naelaedra")
+        theme_name="velvet"
+        ;;
+    "tyrande")
+        theme_name="neko"
+        ;;
+    *)
+        theme_name="M365Princess"
+        ;;
+    esac
+    eval "$(oh-my-posh init bash --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
+fi

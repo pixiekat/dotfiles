@@ -31,10 +31,9 @@ BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 # List of dotfiles to symlink into $HOME
 # Add or remove entries as your repo grows
 DOTFILES=(
+    .aliases
+    .bashrc
     .cache/oh-my-posh/themes/iranian-solidarity.omp.json
-    .config/Code\ -\ Insiders/User/settings.json
-    .local/bin/backup-home-to-storagebox.sh
-    .local/bin/toggle-camera.sh
     .config/btop/btop.conf
     .config/btop/themes/catppuccin/themes/catppuccin_frappe.theme
     .config/btop/themes/catppuccin/themes/catppuccin_latte.theme
@@ -44,22 +43,22 @@ DOTFILES=(
     .config/btop/themes/rose-pine/rose-pine-dawn.theme
     .config/btop/themes/rose-pine/rose-pine-moon.theme
     .config/btop/themes/rose-pine/rose-pine.theme
-    .aliases
-    .bash_aliases
-    .bash_profile
-    .bashrc
+    .config/Code\ -\ Insiders/User/settings.json
     .functions
     .gitconfig
     .gitignore_global
     .inputrc
+    .local/bin/backup-home-to-storagebox.sh
+    .local/bin/toggle-camera.sh
     .nanorc
-    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
     .oh-my-zsh/custom/plugins/you-should-use/you-should-use.plugin.zsh
     .oh-my-zsh/custom/plugins/you-should-use/zsh-you-should-use.plugin.zsh
+    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     .vimrc
+    .zprofile
     .zshrc
 )
 

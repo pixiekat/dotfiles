@@ -160,20 +160,6 @@ pixiekat-ytgrab() {
   yt-dlp -f "${vfmt}+${afmt}" --write-subs --cookies-from-browser vivaldi --no-write-auto-subs --sub-lang "en.*" "$url"
 }
 
-# function to nuclear reset zoom folder
-_zoom_reset() {
-  echo -n "Are you sure you want to reset all Zoom data? This cannot be undone. (y/N) "
-  read -n 1 REPLY
-  echo # move to a new line after the user input
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rm -rf ~/.zoom/data/*
-    mkdir -p ~/.zoom/data
-    echo "Zoom data has been reset."
-  else
-    echo "Zoom reset cancelled."
-  fi
-}
-
 # dotfiles installation and updates
 pixiekat-dotfiles-init() {
   # if ~/webdev/projects exists then we assume we're on a local machine and want to clone to ~/webdev/projects/codeberg/pixiekat/dotfiles to keep it separate from the home directory and avoid accidentally messing with it, but if that path doesn't exist we assume we're on the server and clone directly to ~/dotfiles
@@ -214,7 +200,7 @@ pixiekat-dotfiles-submodule-update() {
   # return to the original directory
   cd "$current_dir"
 }
-  
+
 pixiekat-dotfiles-link() {
   $(_pixiekat_resolve_dotfiles_dir)/bin/install-dotfiles.sh
 }

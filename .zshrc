@@ -73,9 +73,9 @@ ZSH_THEME="robbyrussell"
 plugins=(docker docker-compose git sudo web-search you-should-use z zsh-autosuggestions zsh-syntax-highlighting)
 
 if [ -f $ZSH/oh-my-zsh.sh ]; then
-  source $ZSH/oh-my-zsh.sh
+    source $ZSH/oh-my-zsh.sh
 else
-  echo "Error: Oh My Zsh not found at $ZSH. Please check your installation."
+    echo "Error: Oh My Zsh not found at $ZSH. Please check your installation."
 fi
 
 # User configuration
@@ -108,65 +108,59 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 if [ -f  ~/.aliases ]; then
-  source ~/.aliases
+    source ~/.aliases
+fi
+
+# Special alias to reload .zshrc
+# use omz reload if it exists.
+if type omz &>/dev/null; then
+    alias reload-zsh='omz reload'
+else
+    alias reload-zsh='source ~/.zshrc'
 fi
 
 if [ -f  ~/.functions ]; then
-  source ~/.functions
-fi
-
-if [ -d ~/.deno ]; then
-  . "/home/katy/.deno/env"
-fi
-
-if [ -d ~/.nvm ]; then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-fi
-
-# add ~/.local/bin to the PATH if it exists
-if [ -d "$HOME/.local/bin" ]; then
-  export PATH="$HOME/.local/bin:$PATH"
-fi
-
-# add ~/.config/composer/vendor/bin to the PATH if it exists
-if [ -d "$HOME/.config/composer/vendor/bin" ]; then
-  export PATH="$HOME/.config/composer/vendor/bin:$PATH"
-fi
-
-# add ~/.cargo/bin to the PATH if it exists
-if [ -d "$HOME/.cargo/bin" ]; then
-  export PATH="$HOME/.cargo/bin:$PATH"
-fi
-
-# add ~/.symfony5/bin to the PATH if it exists
-if [ -d "$HOME/.symfony5/bin" ]; then
-  export PATH="$HOME/.symfony5/bin:$PATH"
-fi
-
-# add ~/.yarn/bin to the PATH if it exists
-if [ -d "$HOME/.yarn/bin" ]; then
-  export PATH="$HOME/.yarn/bin:$PATH"
+    source ~/.functions
 fi
 
 # if oh-my-posh is installed, initialise it based on hostname.
 if [ -x "$(command -v oh-my-posh)" ]; then
-  case "$(hostname)" in
+    case "$(hostname)" in
     "debian-8gb-hel1-1")
-      theme_name="1_shell"
-      ;;
+        theme_name="1_shell"
+        ;;
     "naelaedra")
-      theme_name="hunk"
-      ;;
+        theme_name="hunk"
+        ;;
     "tyrande")
-      theme_name="neko"
-      ;;
+        theme_name="neko"
+        ;;
     *)
-      theme_name="M365Princess"
-      ;;
-  esac
+        theme_name="M365Princess"
+        ;;
+    esac
 
-  eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
+    eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
 fi
+
+# NVM environment
+if [ -d "$HOME/.nvm" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+fi
+
+# function to nuclear reset zoom folder
+_zoom_reset() {
+    echo -n "Are you sure you want to reset all Zoom data? This cannot be undone. (y/N) "
+    read -n 1 REPLY
+    echo # move to a new line after the user input
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        rm -rf ~/.zoom/data/*
+        mkdir -p ~/.zoom/data
+        echo "Zoom data has been reset."
+    else
+        echo "Zoom reset cancelled."
+    fi
+}
 
 typeset -U PATH

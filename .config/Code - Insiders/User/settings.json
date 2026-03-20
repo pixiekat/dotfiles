@@ -63,6 +63,7 @@
     },
     "chat.viewSessions.orientation": "stacked",
     "files.associations": {
-        ".profile": "shellscript"
+        ".profile": "shellscript",
+        "*.sh": "shellscript"
     }
 }
