@@ -49,6 +49,7 @@ DOTFILES=(
     .functions
     .gitconfig
     .inputrc
+    .local/bin/backup-databases.sh
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
     .nanorc
