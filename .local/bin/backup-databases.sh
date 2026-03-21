@@ -148,7 +148,7 @@ tar -czf "$ARCHIVE" -C "$TMP_DIR" $(cd "$TMP_DIR" && ls *.sql) || {
 rm -rf "$TMP_DIR"
 
 # Clean up local backups older than $DAYS_TO_KEEP days
-#find "$BACKUP_DIR" -name "*.tar.gz" -mtime +"$DAYS_TO_KEEP" -delete
+find "$BACKUP_DIR" -name "*.tar.gz" -mtime +"$DAYS_TO_KEEP" -delete
 
 if [[ -n "$RSYNC_DESTINATION" ]]; then
     rsync -avz -e "ssh -p 23" "$ARCHIVE" "$RSYNC_DESTINATION/" || {
