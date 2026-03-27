@@ -107,9 +107,11 @@ if [ -x "$(command -v hyfetch)" ]; then
 fi
 
 # Git Cola aliases
-if flatpak list --app | grep -q "git.cola" 2>/dev/null; then
-    alias git-cola='flatpak run com.github.git_cola.git-cola cola 2>/dev/null'
-    alias open-in-git-cola='flatpak run com.github.git_cola.git-cola cola --repo "$(pwd)" 2>/dev/null &'
+if [ -x "$(command -v flatpak)" ]; then
+    if flatpak list --app | grep -q "git.cola" 2>/dev/null; then
+        alias git-cola='flatpak run com.github.git_cola.git-cola cola 2>/dev/null'
+        alias open-in-git-cola='flatpak run com.github.git_cola.git-cola cola --repo "$(pwd)" 2>/dev/null &'
+    fi
 fi
 
 # does composer exist? if so, add some aliases
