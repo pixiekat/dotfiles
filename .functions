@@ -204,3 +204,14 @@ pixiekat-dotfiles-submodule-update() {
 pixiekat-dotfiles-link() {
   $(_pixiekat_resolve_dotfiles_dir)/bin/install-dotfiles.sh
 }
+
+pixiekat-dotfiles-rename-master-branch() {
+    # save the current directory so we can return to it later
+    local current_dir=$(pwd)
+
+    cd "$(_pixiekat_resolve_dotfiles_dir)"
+    git branch -m master main
+
+    # return to the original directory
+    cd "$current_dir"
+}
