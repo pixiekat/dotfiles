@@ -106,6 +106,12 @@ if [ -x "$(command -v hyfetch)" ]; then
     alias baby-its-klaine-outside='hyfetch -p rainbow'
 fi
 
+# Git Cola aliases
+if flatpak list --app | grep -q "git.cola" 2>/dev/null; then
+    alias git-cola='flatpak run com.github.git_cola.git-cola cola 2>/dev/null'
+    alias open-in-git-cola='flatpak run com.github.git_cola.git-cola cola --repo "$(pwd)" 2>/dev/null &'
+fi
+
 # does composer exist? if so, add some aliases
 if [ -x "$(command -v composer)" ]; then
     #does php 8.2 exist? if so, add some aliases
