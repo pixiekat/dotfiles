@@ -106,12 +106,36 @@ if [ -x "$(command -v hyfetch)" ]; then
     alias baby-its-klaine-outside='hyfetch -p rainbow'
 fi
 
+# vs code aliases, if code exists
+
+# first check if we have code-insiders and alias it to code, if code doesn't exist.
+if [ -x "$(command -v code-insiders)" ] && [ ! -x "$(command -v code)" ]; then
+    alias code='code-insiders'
+fi
+
+# check to see if code is executable or if it's alised (in the case of code-insiders) before adding the rest of the aliases
+if which code &>/dev/null || which code-insiders &>/dev/null; then
+    export EDITOR='code'
+    alias code-remote='code --remote ssh-remote+pixiekat'
+
+    # open current directory in code
+    alias open-in-vscode='code $(pwd) 2>/dev/null &'
+fi
+
+# sublime text aliases, if subl exists
+if [ -x "$(command -v subl)" ]; then
+    alias open-in-sublime='subl $(pwd) 2>/dev/null &'
+fi
+
 # Git Cola aliases
 if [ -x "$(command -v flatpak)" ]; then
     if flatpak list --app | grep -q "git.cola" 2>/dev/null; then
         alias git-cola='flatpak run com.github.git_cola.git-cola cola 2>/dev/null'
         alias open-in-git-cola='flatpak run com.github.git_cola.git-cola cola --repo "$(pwd)" 2>/dev/null &'
     fi
+
+    # get list of all installed flatpaks.
+    alias list-flatpaks='flatpak list --app'
 fi
 
 # does composer exist? if so, add some aliases
