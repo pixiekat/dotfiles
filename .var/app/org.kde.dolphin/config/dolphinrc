@@ -1,0 +1,28 @@
+[ContentDisplay]
+UsePermissionsFormat=CombinedFormat
+
+[ContextMenu]
+ShowCopyMoveMenu=true
+
+[General]
+EditableUrl=true
+FilterBar=true
+GlobalViewProps=false
+ShowFullPath=true
+ShowFullPathInTitlebar=true
+ShowStatusBar=FullWidth
+ShowToolTips=true
+ShowZoomSlider=true
+UseTabForSwitchingSplitView=true
+Version=202
+ViewPropsTimestamp=2026,3,3,18,35,57.074
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+
+[PreviewSettings]
+Plugins=audiothumbnail,avif,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,directorythumbnail,gdk-pixbuf-thumbnailer,imagethumbnail,jpegthumbnail,jxl,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,librsvg,svgthumbnail,ffmpegthumbs,webp-pixbuf
+
+[VersionControl]
+enabledPlugins=Git

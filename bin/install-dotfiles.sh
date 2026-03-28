@@ -60,6 +60,10 @@ DOTFILES=(
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
     .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     .profile
+    .var/app/org.kde.dolphin/config/dolphinrc
+    .var/app/org.kde.dolphin/config/kservicemenurc
+    .var/app/org.kde.dolphin/data/kio/servicemenus/open-as-root.desktop
+    .var/app/org.kde.dolphin/data/servicemenu-download/open-as-root.desktop
     .vimrc
     .zprofile
     .zshrc
