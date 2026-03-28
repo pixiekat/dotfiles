@@ -52,6 +52,7 @@ DOTFILES=(
     .local/bin/backup-databases.sh
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
+    .local/bin/toggle-rustdesk.sh
     .nanorc
     .oh-my-zsh/custom/plugins/you-should-use/you-should-use.plugin.zsh
     .oh-my-zsh/custom/plugins/you-should-use/zsh-you-should-use.plugin.zsh
