@@ -225,15 +225,15 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
         "/mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Media/Movies"
     )
 
-    for path in "${media_paths[@]}"; do
+    for media_path in "${media_paths[@]}"; do
 
         # check if path exists before trying to set permissions
-        if [ -d "$path" ]; then
-            /usr/bin/sudo chown -R katy:media "$path"
-            /usr/bin/find "$path" -type d -exec /usr/bin/chmod g+rws {} +  # setgid so new files inherit media group
-            /usr/bin/find "$path" -type f -exec /usr/bin/chmod g+rw {} +   # existing files get group read/write
+        if [ -d "$media_path" ]; then
+            sudo chown -R katy:media "$media_path"
+            find "$media_path" -type d -exec chmod g+rws {} +  # setgid so new files inherit media group
+            find "$media_path" -type f -exec chmod g+rw {} +   # existing files get group read/write
         else
-            echo "Warning: Path $path does not exist, skipping permission setting for this path."
+            echo "Warning: Path $media_path does not exist, skipping permission setting for this path."
         fi
     done
 }
