@@ -229,9 +229,9 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
 
         # check if path exists before trying to set permissions
         if [ -d "$path" ]; then
-            sudo chown -R katy:media "$path"
-            find "$path" -type d -exec chmod g+rws {} +  # setgid so new files inherit media group
-            find "$path" -type f -exec chmod g+rw {} +   # existing files get group read/write
+            /usr/bin/sudo chown -R katy:media "$path"
+            /usr/bin/find "$path" -type d -exec chmod g+rws {} +  # setgid so new files inherit media group
+            /usr/bin/find "$path" -type f -exec chmod g+rw {} +   # existing files get group read/write
         else
             echo "Warning: Path $path does not exist, skipping permission setting for this path."
         fi
