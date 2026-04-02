@@ -215,3 +215,25 @@ pixiekat-dotfiles-rename-master-branch() {
     # return to the original directory
     cd "$current_dir"
 }
+
+# this will run chown, chmod, and find/setbit to ensure the media group (which includes jellyfin) has the necessary permissions to read/write/execute files in the media folders, and that new files created there will inherit the same permissions
+pixiekat-dotfiles-set-permissions-on-media-folders() {
+    local -a media_paths=(
+        "/mnt/storage/media/libraries/films"
+        "/mnt/storage/media/libraries/tv_shows"
+        "/mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Media/TV Series"
+        "/mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Media/Movies"
+    )
+
+    for path in "${media_paths[@]}"; do
+
+        # check if path exists before trying to set permissions
+        if [ -d "$path" ]; then
+            sudo chown -R katy:media "$path"
+            find "$path" -type d -exec chmod g+rws {} +  # setgid so new files inherit media group
+            find "$path" -type f -exec chmod g+rw {} +   # existing files get group read/write
+        else
+            echo "Warning: Path $path does not exist, skipping permission setting for this path."
+        fi
+    done
+}
