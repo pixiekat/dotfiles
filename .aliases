@@ -136,6 +136,12 @@ if [ -x "$(command -v flatpak)" ]; then
 
     # get list of all installed flatpaks.
     alias list-flatpaks='flatpak list --app'
+else
+    # if flatpak doesn't exist, check if git-cola exists and add alias
+    if [ -x "$(command -v git-cola)" ]; then
+        alias git-cola='git-cola 2>/dev/null'
+        alias open-in-git-cola='git-cola --repo "$(pwd)" 2>/dev/null &'
+    fi
 fi
 
 # does composer exist? if so, add some aliases
