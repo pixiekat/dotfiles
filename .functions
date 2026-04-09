@@ -223,6 +223,7 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
         "/mnt/storage/media/libraries/tv_shows"
         "/mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Media/TV Series"
         "/mnt/ata-TOSHIBA_DT01ACA200_96FA2MUAS/Media/Movies"
+        "/mnt/ata-WDC_WD80EDAZ-11CEWB0_WD-RD1ZAG5H-part1/Media/Movies"
         "/mnt/ata-WDC_WD80EDAZ-11CEWB0_WD-RD1ZAG5H-part1/Media/TV Series/Ghosts (2021)"
         "/mnt/ata-WDC_WD80EDAZ-11CEWB0_WD-RD1ZAG5H-part1/Media/TV Series/Matlock (2024)"
     )
