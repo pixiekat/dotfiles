@@ -293,3 +293,25 @@ winget() {
 }
 
 pixiekat-claude-install() {
+    if [ -x "$(command -v claude)" ]; then
+        echo "Claude is already installed, aborting!"
+        return 1
+    fi
+    echo "Installing Claude CLI..."
+    curl -fsSL https://claude.ai/install.sh | bash
+}
+
+pixiekat-claude-uninstall() {
+    if [ ! -x "$(command -v claude)" ]; then
+        echo "Claude CLI is not installed, aborting!"
+        return 1
+    fi
+    echo "Uninstalling Claude CLI..."
+    rm -f ~/.local/bin/claude
+    rm -rf ~/.local/share/claude
+    rm -rf ~/.claude
+
+    if [ -f ~/.claude.json ]; then
+      rm ~/.claude.json
+    fi
+}
