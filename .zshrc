@@ -166,4 +166,8 @@ _zoom_reset() {
     fi
 }
 
+if [ -d $HOME/.cargo ]; then
+    . "$HOME/.cargo/env"
+fi
+
 typeset -U PATH

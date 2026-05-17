@@ -127,3 +127,4 @@ if [ -x "$(command -v oh-my-posh)" ]; then
     esac
     eval "$(oh-my-posh init bash --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
 fi
+. "$HOME/.cargo/env"
