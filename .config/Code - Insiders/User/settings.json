@@ -41,7 +41,7 @@
     "workbench.colorTheme": "SynthWave '84",
     "settingsSync.ignoredExtensions": [],
     "editor.multiCursorModifier": "ctrlCmd",
-    "chat.commandCenter.enabled": false,
+    "chat.commandCenter.enabled": true,
     "github.copilot.advanced": {},
     "github.copilot.nextEditSuggestions.enabled": true,
     "claudeCode.preferredLocation": "panel",
@@ -65,5 +65,6 @@
     "files.associations": {
         ".profile": "shellscript",
         "*.sh": "shellscript"
-    }
+    },
+    "editor.quickSuggestions": "offWhenInlineCompletions"
 }
