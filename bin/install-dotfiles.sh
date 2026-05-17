@@ -25,8 +25,25 @@ else
     exit 1
 fi
 
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            IS_DRY_RUN="True"
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
 # Where to store backups of any pre-existing dotfiles that get replaced
 BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
+
+# Set IS_DRY_RUN to "False" by default if not set by arguments
+IS_DRY_RUN="${IS_DRY_RUN:-False}"
 
 # List of dotfiles to symlink into $HOME
 # Add or remove entries as your repo grows
@@ -111,28 +128,44 @@ for file in "${DOTFILES[@]}"; do
     dest="$HOME/$file"
 
     # Skip if the source file doesn't exist in the repo
-    if [[ ! -f "$src" ]]; then
-    warn "Source not found in repo, skipping: $file"
-    continue
+    if [[ ! -e "$src" && ! -L "$src" ]]; then
+        if [[ "$IS_DRY_RUN" == "True" ]]; then
+            info "[DRY RUN] Would skip missing source: $src"
+        else
+            warn "Source not found in repo, skipping: $file"
+        fi
+        continue
     fi
 
     # If something already exists at the destination, back it up
     if [[ -e "$dest" || -L "$dest" ]]; then
-    info "Backing up existing: $dest"
+        if [[ "$IS_DRY_RUN" == "True" ]]; then
+            info "[DRY RUN] Would back up existing: $dest to $BACKUP_DIR/$file"
+        else
+            info "Backing up existing: $dest"
+        fi
 
-    # dirname strips the filename, leaving just the directory path.
-    # e.g. $BACKUP_DIR/.local/bin/toggle-camera.sh -> $BACKUP_DIR/.local/bin
-    backup_dest_dir="$(dirname "$BACKUP_DIR/$file")"
+        # dirname strips the filename, leaving just the directory path.
+        # e.g. $BACKUP_DIR/.local/bin/toggle-camera.sh -> $BACKUP_DIR/.local/bin
+        backup_dest_dir="$(dirname "$BACKUP_DIR/$file")"
 
-    # Create that subdirectory tree if it doesn't already exist.
-    # -p means "create parents as needed, no error if already exists"
-    if [[ ! -d "$backup_dest_dir" ]]; then
-        mkdir -p "$backup_dest_dir"
-        info "Created backup subdir: $backup_dest_dir"
-    fi
+        # Create that subdirectory tree if it doesn't already exist.
+        # -p means "create parents as needed, no error if already exists"
+        if [[ ! -d "$backup_dest_dir" ]]; then
+            if [[ "$IS_DRY_RUN" == "True" ]]; then
+                info "[DRY RUN] Would create backup subdir: $backup_dest_dir"
+            else
+                mkdir -p "$backup_dest_dir"
+                info "Created backup subdir: $backup_dest_dir"
+            fi
+        fi
 
-    mv "$dest" "$BACKUP_DIR/$file"
-    success "Backed up: $dest"
+        if [[ "$IS_DRY_RUN" == "True" ]]; then
+            info "[DRY RUN] Would back up $dest to $BACKUP_DIR/$file"
+        else
+            mv "$dest" "$BACKUP_DIR/$file"
+            success "Backed up: $dest"
+        fi
     fi
 
     # ---------------------------------------------------------------------------
@@ -145,30 +178,46 @@ for file in "${DOTFILES[@]}"; do
     first_line="$(head -n 1 "$src" 2>/dev/null)"
 
     if [[ "$src" == *"btop/themes"* && "$src" == *".theme" ]]; then
-        mkdir -p "$HOME/.config/btop/themes"
-        ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
-        success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
+        if [[ "$IS_DRY_RUN" == "True" ]]; then
+            info "[DRY RUN] Would link btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
+        else
+            mkdir -p "$HOME/.config/btop/themes"
+            ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
+            success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
+        fi
         continue
     fi
 
     if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
-        chmod u+x "$src"
-        success "Marked executable: $src"
+        if [[ "$IS_DRY_RUN" == "True" ]]; then
+            info "[DRY RUN] Would mark executable: $src"
+        else
+            chmod u+x "$src"
+            success "Marked executable: $src"
+        fi
     fi
 
     # if $src is .nanorc, make sure the cache directory exists for it to store its compiled version
     if [[ "$src" == *".nanorc" ]]; then
         if [[ ! -d "$HOME/.cache/nano/backups" ]]; then
-            info "Creating nano cache/backups directory: $HOME/.cache/nano/backups"
-            mkdir -p "$HOME/.cache/nano/backups"
+            if [[ "$IS_DRY_RUN" == "True" ]]; then
+                info "[DRY RUN] Would create nano cache/backups directory: $HOME/.cache/nano/backups"
+            else
+                info "Creating nano cache/backups directory: $HOME/.cache/nano/backups"
+                mkdir -p "$HOME/.cache/nano/backups"
+            fi
         fi
     fi
 
     # Create the symlink
     # ensure directory exists for the destination
-    mkdir -p "$(dirname "$dest")"
-    ln -s "$src" "$dest"
-    success "Linked: $dest -> $src"
+    if [[ "$IS_DRY_RUN" == "True" ]]; then
+        info "[DRY RUN] Would create parent directory for: $dest"
+    else
+        mkdir -p "$(dirname "$dest")"
+        ln -sf "$src" "$dest"
+        success "Linked: $dest -> $src"
+    fi
 
 done
 
@@ -178,8 +227,12 @@ done
 # -- Done -------------------------------------------------------------------
 
 echo ""
-info "Installation complete."
-info "Backups (if any) are in: $BACKUP_DIR"
-echo ""
 
-info "Review your shell with: source ~/.zshrc or source ~/.bashrc"
+if [[ "$IS_DRY_RUN" == "True" ]]; then
+    info "DRY RUN complete. No changes were made."
+else
+    info "Installation complete."
+    info "Backups (if any) are in: $BACKUP_DIR"
+    info "Review your shell with: source ~/.zshrc or source ~/.bashrc"
+fi
+echo ""
