@@ -248,3 +248,48 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
         fi
     done
 }
+
+winget() {
+    distro=$(grep -sm1 '^DISTRIB_ID=' /etc/*-release | cut -d= -f2 | tr '[:upper:]' '[:lower:]')
+
+    # fallback for distros that don't use lsb-release
+    if [[ -z "$distro" && -f /etc/os-release ]]; then
+        . /etc/os-release
+        distro=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
+    fi
+
+    trap '' SIGINT
+    trap '' EXIT
+
+    case "$distro" in
+        arch)           msg="i use arch btw" ;;
+        gentoo)         msg="please wait, compiling winget from source" ;;
+        nixos)          msg="have you considered declaring winget functionally" ;;
+        fedora)         msg="cutting edge except when it isnt" ;;
+        redhat|rhel)    msg="oh fuck off" ;;
+        mariner)        msg="lol u playing" ;;
+        slackware)      msg="lets get you to bed grandma" ;;
+        ubuntu)         msg="thanos should snap u out of existance" ;;
+        debian)         msg="shout out to all the hrt girlies ✨" ;;
+        linuxmint)      msg="no canonical, no snap, no winget as it should be" ;;
+        hannahmontana)  msg="honestly based no judgement here" ;;
+        uwuntu)         msg="👉️👈️🥺" ;;
+        void)           msg="runit is your personality trait" ;;
+        templeos)       msg="this is above my pay grade" ;;
+        redstaros)      msg="comrade please step away from the keyboard" ;;
+        manjaro)        msg="arch but with drama" ;;
+        alpine)         msg="musl enjoyer detected" ;;
+        *)              msg="are you mad microsoft on ${distro}??" ;;
+    esac
+
+    while true; do
+        echo "${msg}"
+
+        if [[ $distro == "hannahmontana" ]]; then
+            return 1
+        fi
+        sleep 0.5
+    done
+}
+
+pixiekat-claude-install() {
