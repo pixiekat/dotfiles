@@ -170,4 +170,53 @@ if [ -d $HOME/.cargo ]; then
     . "$HOME/.cargo/env"
 fi
 
+#compdef weathr
+
+autoload -U is-at-least
+
+_weathr() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'-s+[Simulate weather condition (clear, rain, drizzle, snow, etc.)]:CONDITION:_default' \
+'--simulate=[Simulate weather condition (clear, rain, drizzle, snow, etc.)]:CONDITION:_default' \
+'--completions=[]:SHELL:(bash elvish fish powershell zsh)' \
+'-n[Simulate night time (for testing moon, stars, fireflies)]' \
+'--night[Simulate night time (for testing moon, stars, fireflies)]' \
+'-l[Enable falling autumn leaves]' \
+'--leaves[Enable falling autumn leaves]' \
+'--auto-location[Auto-detect location via IP (uses ipinfo.io)]' \
+'--hide-location[Hide location coordinates in UI]' \
+'--hide-hud[Hide HUD (status line)]' \
+'(--metric)--imperial[Use imperial units (°F, mph, inch)]' \
+'(--imperial)--metric[Use metric units (°C, km/h, mm)]' \
+'--silent[Run silently (suppress non-error output)]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+}
+
+(( $+functions[_weathr_commands] )) ||
+_weathr_commands() {
+    local commands; commands=()
+    _describe -t commands 'weathr commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_weathr" ]; then
+    _weathr "$@"
+else
+    compdef _weathr weathr
+fi
+
 typeset -U PATH
