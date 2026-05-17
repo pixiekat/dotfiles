@@ -258,8 +258,7 @@ winget() {
         distro=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
     fi
 
-    trap '' SIGINT
-    trap '' EXIT
+    trap '' SIGINT EXIT
 
     case "$distro" in
         arch)           msg="i use arch btw" ;;
