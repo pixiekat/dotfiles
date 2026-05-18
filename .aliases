@@ -135,7 +135,12 @@ if [ -x "$(command -v flatpak)" ]; then
     fi
 
     # get list of all installed flatpaks.
+    # deprecated, use flatpak-list-installed
     alias list-flatpaks='flatpak list --app'
+    alias flatpak-list-installed='flatpak list --app'
+
+    # get outdated flatpaks
+    alias flatpak-outdated='flatpak remote-ls --updates'
 else
     # if flatpak doesn't exist, check if git-cola exists and add alias
     if [ -x "$(command -v git-cola)" ]; then
