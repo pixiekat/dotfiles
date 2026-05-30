@@ -7,6 +7,7 @@ set cutfromcursor
 set historylog
 set indicator
 set linenumbers
+#set matchbrackets
 set minibar
 set mouse
 set nohelp
