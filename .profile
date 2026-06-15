@@ -44,6 +44,15 @@ if [ -f "$HOME/.deno/env" ]; then
     . "$HOME/.deno/env"
 fi
 
+# Add symfonycli to PATH
+if [ -d "$HOME/.symfony5/bin" ]; then
+    PATH="$HOME/.symfony5/bin:$PATH"
+fi
+
+if [ -d "$HOME/.config/symfony-cli/bin" ]; then
+    PATH="$HOME/.config/symfony-cli/bin:$PATH"
+fi
+
 # Add bash-games to PATH, if they exist.
 if [ -d "$HOME/webdev/projects/codeberg/pixiekat/bash-games" ]; then
     PATH="$HOME/webdev/projects/codeberg/pixiekat/bash-games:$PATH"
