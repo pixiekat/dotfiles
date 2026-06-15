@@ -212,7 +212,7 @@ for file in "${DOTFILES[@]}"; do
     # Create the symlink
     # ensure directory exists for the destination
     if [[ "$IS_DRY_RUN" == "True" ]]; then
-        info "[DRY RUN] Would create parent directory for: $dest"
+        info "[DRY RUN] Would symlink for: $dest"
     else
         mkdir -p "$(dirname "$dest")"
         ln -sf "$src" "$dest"
