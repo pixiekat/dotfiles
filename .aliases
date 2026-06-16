@@ -217,3 +217,8 @@ fi
 if [ -f ~/.aliases_private ]; then
     source ~/.aliases_private
 fi
+
+# override web_search plugin to get rid of shitty elon musk sites
+alias grok="echo fuck elon musk"
+alias grokcom="echo fuck elon musk"
+alias twitter="echo fuck elon musk"
