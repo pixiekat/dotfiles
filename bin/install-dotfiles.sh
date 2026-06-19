@@ -67,6 +67,7 @@ DOTFILES=(
     .gitconfig
     .inputrc
     .local/bin/backup-databases.sh
+    .local/bin/backup-immich.sh
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
     .local/bin/toggle-rustdesk.sh
