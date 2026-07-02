@@ -62,6 +62,8 @@ DOTFILES=(
     .config/btop/themes/rose-pine/rose-pine-moon.theme
     .config/btop/themes/rose-pine/rose-pine.theme
     .config/Code\ -\ Insiders/User/settings.json
+    .config/composer/config.json
+    .config/composer/composer.json
     .config/hyfetch.json
     .functions
     .gitconfig
@@ -71,6 +73,7 @@ DOTFILES=(
     .local/bin/backup-home-to-storagebox.sh
     .local/bin/toggle-camera.sh
     .local/bin/toggle-rustdesk.sh
+    .local/bin/git-check-large-files.sh
     .nanorc
     .oh-my-zsh/custom/plugins/you-should-use/you-should-use.plugin.zsh
     .oh-my-zsh/custom/plugins/you-should-use/zsh-you-should-use.plugin.zsh
@@ -123,6 +126,17 @@ fi
 
 
 # -- Main installation loop -------------------------------------------------
+
+# if there is a dotfiles-private directory onelevel up from the dotfiles directory, then we should also look for files in there and link them as well
+# this allows us to keep sensitive files like .gitconfig.local out of the main repo, while still having them installed by this script
+if [[ -d "$DOTFILES_DIR/../dotfiles-private" ]]; then
+    info "Found dotfiles-private directory, including those files in the installation process."
+    # we can use the same DOTFILES array since the paths will be relative to the main dotfiles directory, so .gitconfig.local will be in the list and we'll just need to check for it in both places when we go to link it
+    DOTFILES+=(
+        ../dotfiles-private/.gitconfig.local
+        ../dotfiles-private/.claude/CLAUDE.md
+    )
+fi
 
 for file in "${DOTFILES[@]}"; do
     src="$DOTFILES_DIR/$file"

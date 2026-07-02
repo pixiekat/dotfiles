@@ -149,23 +149,39 @@ else
     fi
 fi
 
+if [ -x "$(command -v php)" ]; then
+    alias pixiekat-switch-php='sudo update-alternatives --config php'
+fi
+
 # does composer exist? if so, add some aliases
 if [ -x "$(command -v composer)" ]; then
     #does php 8.2 exist? if so, add some aliases
     if [ -x "$(command -v php8.2)" ]; then
         alias composer82='php8.2 /usr/local/bin/composer'
+        if [ -x "$(command -v acli)" ]; then
+            alias acli82='/usr/bin/php8.2 /usr/local/bin/acli'
+        fi
     fi
     #does php 8.3 exist? if so, add some aliases
     if [ -x "$(command -v php8.3)" ]; then
         alias composer83='php8.3 /usr/local/bin/composer'
+        if [ -x "$(command -v acli)" ]; then
+            alias acli83='/usr/bin/php8.3 /usr/local/bin/acli'
+        fi
     fi
     #does php 8.4 exist? if so, add some aliases
     if [ -x "$(command -v php8.4)" ]; then
         alias composer84='php8.4 /usr/local/bin/composer'
+        if [ -x "$(command -v acli)" ]; then
+            alias acli84='/usr/bin/php8.4 /usr/local/bin/acli'
+        fi
     fi
     #does php 8.5 exist? if so, add some aliases
     if [ -x "$(command -v php8.5)" ]; then
         alias composer85='php8.5 /usr/local/bin/composer'
+        if [ -x "$(command -v acli)" ]; then
+            alias acli85='/usr/bin/php8.5 /usr/local/bin/acli'
+        fi
     fi
 fi
 

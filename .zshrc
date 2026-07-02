@@ -136,7 +136,7 @@ if [ -x "$(command -v oh-my-posh)" ]; then
         theme_name="hunk"
         ;;
     "tyrande")
-        theme_name="neko"
+        theme_name="M365Princess"
         ;;
     *)
         theme_name="M365Princess"
