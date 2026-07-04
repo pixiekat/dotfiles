@@ -6,7 +6,16 @@
 # Package manager judgement (corrected for Red Hat crimes).
 # Lives here rather than in personal.zsh so the work profile gets judged too. >:3
 if [ -x "$(command -v apt)" ]; then
-    print -u2 "debian? good puppygirl!"
+    # apt = Debian family; sub-sort by the exact distro via /etc/os-release.
+    # Sourcing it in $(...) runs in a subshell, so ID (and NAME/VERSION/etc.)
+    # never leak into the real shell environment.
+    distro_id=$(. /etc/os-release 2>/dev/null && echo "$ID")
+    case "$distro_id" in
+        linuxmint)  print -u2 "mint? cinnamon toast crunch. good puppygirl!" ;;
+        ubuntu)     print -u2 "ubuntu. snaps and all, bless. still love you." ;;
+        pop)        print -u2 "pop!_os? System76 gang. tasteful." ;;
+        debian|*)   print -u2 "debian? good puppygirl!" ;;   # plain Debian + anything unlabeled
+    esac
 else
     # not-debian fallbacks
     if [ -x "$(command -v nix-env)" ] || [ -x "$(command -v nix)" ]; then
