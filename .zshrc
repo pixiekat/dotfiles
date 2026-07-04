@@ -93,7 +93,9 @@ ZSH_PROFILE_DIR="${ZDOTDIR:-$HOME}/.config/zsh/profiles"
 
 # Default zsh plugins shared by every profile. Each profile below merges its
 # own array on top of these, so the defaults are the common baseline.
-default_plugins=(common-aliases you-should-use zsh-autosuggestions zsh-syntax-highlighting)
+# NOTE: zsh-syntax-highlighting is intentionally NOT here -- it must load dead
+# last (after every other plugin's widgets), so it's appended after the case.
+default_plugins=(common-aliases you-should-use zsh-autosuggestions)
 theme_name="robbyrussell"
 
 # DRY baseline: every shell gets default.zsh first, then the profile-specific
@@ -110,7 +112,9 @@ case "$TERM_PROFILE" in
     # shortcuts, docker, git -- whatever keeps you from fat-fingering a deploy.
     print -u2 "zshrc: loading work profile"
     source "$ZSH_PROFILE_DIR/work.zsh"
-    work_plugins=(composer docker docker-compose drush git git-auto-fetch git-commit git-extras gitignore git-prompt ssh symfony sudo)
+    # dropped: git-commit (shadows the `test` builtin) and git-prompt
+    # (redundant -- oh-my-posh renders the git segment, not an omz theme).
+    work_plugins=(composer docker docker-compose drush git git-auto-fetch git-extras gitignore ssh symfony sudo)
     # defaults first, then the work-only plugins appended after them.
     plugins=("${default_plugins[@]}" "${work_plugins[@]}")
     case "$HOST" in                        # distinct prompt per work machine
@@ -140,6 +144,10 @@ case "$TERM_PROFILE" in
     plugins=("${default_plugins[@]}")
     ;;
 esac
+
+# zsh-syntax-highlighting must be the LAST plugin loaded -- it wraps every widget
+# defined before it, so it has to come after the profile merge, in every profile.
+plugins+=(zsh-syntax-highlighting)
 
 if [ -f $ZSH/oh-my-zsh.sh ]; then
     source $ZSH/oh-my-zsh.sh
