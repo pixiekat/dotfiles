@@ -77,6 +77,13 @@ DOTFILES=(
     .local/bin/toggle-camera.sh
     .local/bin/toggle-rustdesk.sh
     .local/bin/git-check-large-files.sh
+    .local/share/konsole/Katy.profile
+    .local/share/konsole/Katherine.profile
+    .local/share/konsole/CampbellPowershell.colorscheme
+    .local/share/konsole/Catppuccin-Frappe.colorscheme
+    .local/share/konsole/CelebiPMD.colorscheme
+    .local/share/konsole/GNOME.colorscheme
+    .local/share/konsole/PurPurNight-Konsole.colorscheme
     .nanorc
     .oh-my-zsh/custom/plugins/you-should-use/you-should-use.plugin.zsh
     .oh-my-zsh/custom/plugins/you-should-use/zsh-you-should-use.plugin.zsh
@@ -238,6 +245,29 @@ for file in "${DOTFILES[@]}"; do
     fi
 
 done
+
+# ---------------------------------------------------------------------------
+
+
+# -- KDE / Konsole post-config ----------------------------------------------
+# konsolerc is NOT symlinked -- it mixes the one setting we want to share
+# (DefaultProfile) with per-machine window geometry that would otherwise churn
+# the repo on every window move. Instead, set just that one key surgically with
+# KDE's own config writer, leaving each box's [MainWindow] state local.
+KONSOLE_DEFAULT_PROFILE="Katy.profile"
+kwriteconfig="$(command -v kwriteconfig6 || command -v kwriteconfig5)"
+
+if [[ -n "$kwriteconfig" ]]; then
+    if [[ "$IS_DRY_RUN" == "True" ]]; then
+        info "[DRY RUN] Would set konsolerc DefaultProfile=$KONSOLE_DEFAULT_PROFILE via $(basename "$kwriteconfig")"
+    else
+        "$kwriteconfig" --file konsolerc --group "Desktop Entry" \
+            --key DefaultProfile "$KONSOLE_DEFAULT_PROFILE"
+        success "Set Konsole default profile: $KONSOLE_DEFAULT_PROFILE"
+    fi
+else
+    warn "kwriteconfig6/5 not found -- skipping Konsole default-profile setup"
+fi
 
 # ---------------------------------------------------------------------------
 

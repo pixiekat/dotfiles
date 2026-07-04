@@ -1,0 +1,108 @@
+; Konsole Color Scheme: Celebi PMD — Light Pink
+; blush pink background, deep maroon text, rose accents — matches the KDE color scheme
+
+[Background]
+Color=255,232,244
+
+[BackgroundFaint]
+Color=255,244,250
+
+[BackgroundIntense]
+Color=255,210,228
+
+[Color0]
+; black → deep maroon
+Color=58,12,30
+
+[Color0Faint]
+Color=100,45,68
+
+[Color0Intense]
+Color=80,20,42
+
+[Color1]
+; red → negative rose
+Color=196,32,62
+
+[Color1Faint]
+Color=148,72,108
+
+[Color1Intense]
+Color=242,80,138
+
+[Color2]
+; green → forest green (positive)
+Color=22,148,102
+
+[Color2Faint]
+Color=15,105,72
+
+[Color2Intense]
+Color=30,185,128
+
+[Color3]
+; yellow → neutral warm
+Color=155,105,18
+
+[Color3Faint]
+Color=120,80,12
+
+[Color3Intense]
+Color=200,145,30
+
+[Color4]
+; blue → visited link purple
+Color=155,70,122
+
+[Color4Faint]
+Color=120,50,95
+
+[Color4Intense]
+Color=172,28,80
+
+[Color5]
+; magenta → hot pink accent
+Color=242,80,138
+
+[Color5Faint]
+Color=200,120,160
+
+[Color5Intense]
+Color=255,148,188
+
+[Color6]
+; cyan → link green
+Color=22,148,102
+
+[Color6Faint]
+Color=15,105,72
+
+[Color6Intense]
+Color=50,185,140
+
+[Color7]
+; white → soft blush white
+Color=255,252,254
+
+[Color7Faint]
+Color=230,215,225
+
+[Color7Intense]
+Color=255,255,255
+
+[Foreground]
+Color=58,12,30
+
+[ForegroundFaint]
+Color=148,72,108
+
+[ForegroundIntense]
+Color=172,28,80
+
+[General]
+Anchor=0
+Blur=false
+ColorRandomization=false
+Description=Celebi PMD
+Opacity=100
+Wallpaper=
