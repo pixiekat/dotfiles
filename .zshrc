@@ -113,7 +113,10 @@ case "$TERM_PROFILE" in
     work_plugins=(git sudo)
     # defaults first, then the work-only plugins appended after them.
     plugins=("${default_plugins[@]}" "${work_plugins[@]}")
-    theme_name="clean-detailed"
+    case "$HOST" in                        # distinct prompt per work machine
+        debian-8gb-hel1-1)  theme_name="darkblood" ;;      # Hetzner = "you're on prod, think first"
+        *)                  theme_name="clean-detailed" ;; # local work terminals
+    esac
     ;;
   katy)
     # Home box energy: docker aliases (dps!), WoW-adjacent nonsense, the fun.
@@ -189,10 +192,18 @@ else
 fi
 
 # if oh-my-posh is installed, initialise it with the profile's theme.
-# theme_name always has a default set up top, so no empty-value fallback is needed.
-if [ -x "$(command -v oh-my-posh)" ] && [ -n "$theme_name" ]; then
-    print -u2 "zshrc: oh-my-posh theme set to $theme_name"
-    eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
+# We check the theme JSON actually exists (not just that $theme_name is set) so a
+# missing file -- e.g. a theme present locally but not yet on this box -- degrades
+# to oh-my-posh's built-in default with a warning, instead of a broken prompt.
+if [ -x "$(command -v oh-my-posh)" ]; then
+    theme_file="$HOME/.cache/oh-my-posh/themes/${theme_name}.omp.json"
+    if [ -n "$theme_name" ] && [ -f "$theme_file" ]; then
+        print -u2 "zshrc: oh-my-posh theme set to $theme_name"
+        eval "$(oh-my-posh init zsh --config "$theme_file")"
+    else
+        print -u2 "zshrc: oh-my-posh theme '$theme_name' not found at $theme_file -- using oh-my-posh default"
+        eval "$(oh-my-posh init zsh)"
+    fi
 fi
 
 # NVM environment
