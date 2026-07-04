@@ -93,7 +93,7 @@ ZSH_PROFILE_DIR="${ZDOTDIR:-$HOME}/.config/zsh/profiles"
 
 # Default zsh plugins shared by every profile. Each profile below merges its
 # own array on top of these, so the defaults are the common baseline.
-default_plugins=(you-should-use zsh-autosuggestions zsh-syntax-highlighting)
+default_plugins=(common-aliases you-should-use zsh-autosuggestions zsh-syntax-highlighting)
 theme_name="robbyrussell"
 
 # DRY baseline: every shell gets default.zsh first, then the profile-specific
@@ -110,7 +110,7 @@ case "$TERM_PROFILE" in
     # shortcuts, docker, git -- whatever keeps you from fat-fingering a deploy.
     print -u2 "zshrc: loading work profile"
     source "$ZSH_PROFILE_DIR/work.zsh"
-    work_plugins=(git sudo)
+    work_plugins=(composer docker docker-compose drush git git-autofetch git-commit git-extras gitignore git-prompt ssh symfony sudo)
     # defaults first, then the work-only plugins appended after them.
     plugins=("${default_plugins[@]}" "${work_plugins[@]}")
     case "$HOST" in                        # distinct prompt per work machine
