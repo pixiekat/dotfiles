@@ -70,7 +70,73 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(docker docker-compose git sudo web-search you-should-use z zsh-autosuggestions zsh-syntax-highlighting)
+
+# Profile selection precedence:
+#   1. TERM_PROFILE from the environment (Konsole exports it) -- explicit wins.
+#   2. Otherwise map by hostname -- headless boxes (Hetzner, no Konsole to
+#      export the env) still pick a sensible world on their own.
+#   3. Otherwise fall back to the generic default.
+if [[ -z "$TERM_PROFILE" ]]; then
+    case "$HOST" in                        # $HOST is a zsh builtin -- no subshell
+        debian-8gb-hel1-1)  TERM_PROFILE="work" ;;   # dev server: docker, git, drush
+        naelaedra|tyrande)  TERM_PROFILE="katy" ;;
+        *)                  TERM_PROFILE="default" ;;
+    esac
+fi
+print -u2 "zshrc: hostname is '$HOST'"
+print -u2 "zshrc: TERM_PROFILE is set to '$TERM_PROFILE'"
+
+# Directory holding per-profile config fragments. Keeping these as separate
+# sourced files (rather than one giant if-block) means each "world" is
+# self-contained and readable on its own -- easy to diff, easy to reason about.
+ZSH_PROFILE_DIR="${ZDOTDIR:-$HOME}/.config/zsh/profiles"
+
+# Default zsh plugins shared by every profile. Each profile below merges its
+# own array on top of these, so the defaults are the common baseline.
+default_plugins=(you-should-use zsh-autosuggestions zsh-syntax-highlighting)
+theme_name="robbyrussell"
+
+# DRY baseline: every shell gets default.zsh first, then the profile-specific
+# fragment layers its extras/overrides on top. Shared config lives in one place
+# instead of being copy-pasted into work + personal. (Sourced after the plugin/
+# theme defaults above so default.zsh can nudge those too if it ever needs to.)
+# Guarded like .profile below: if the fragment is missing (linker drift, fresh
+# box mid-setup), skip it quietly instead of erroring on every new shell.
+[[ -f "$ZSH_PROFILE_DIR/default.zsh" ]] && source "$ZSH_PROFILE_DIR/default.zsh"
+
+case "$TERM_PROFILE" in
+  work)
+    # Harvard/Alicanto + the Hetzner dev box: Acquia aliases, Drupal drush
+    # shortcuts, docker, git -- whatever keeps you from fat-fingering a deploy.
+    print -u2 "zshrc: loading work profile"
+    source "$ZSH_PROFILE_DIR/work.zsh"
+    work_plugins=(git sudo)
+    # defaults first, then the work-only plugins appended after them.
+    plugins=("${default_plugins[@]}" "${work_plugins[@]}")
+    theme_name="clean-detailed"
+    ;;
+  katy)
+    # Home box energy: docker aliases (dps!), WoW-adjacent nonsense, the fun.
+    print -u2 "zshrc: loading personal profile"
+    source "$ZSH_PROFILE_DIR/personal.zsh"
+    personal_plugins=()
+    # defaults first, then the personal-only plugins appended after them.
+    plugins=("${default_plugins[@]}" "${personal_plugins[@]}")
+
+    case "$HOST" in                        # per-machine prompt flair
+        naelaedra)  theme_name="hunk" ;;
+        tyrande)    theme_name="M365Princess" ;;
+        *)          theme_name="M365Princess" ;;
+    esac
+    ;;
+  *)
+    # Unknown value -- warn once so a typo in the profile env editor doesn't
+    # silently give you the wrong world. default.zsh is already sourced above,
+    # so just fall back to the base plugins.
+    print -u2 "zshrc: unknown TERM_PROFILE '$TERM_PROFILE', using default only"
+    plugins=("${default_plugins[@]}")
+    ;;
+esac
 
 if [ -f $ZSH/oh-my-zsh.sh ]; then
     source $ZSH/oh-my-zsh.sh
@@ -110,9 +176,9 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-if [ -f  ~/.aliases ]; then
-    source ~/.aliases
-fi
+# Note: ~/.aliases and ~/.functions are sourced from ~/.profile (pulled in
+# above), so both zsh and bash share one source-of-truth. Don't re-source them
+# here or they'd load twice.
 
 # Special alias to reload .zshrc
 # use omz reload if it exists.
@@ -122,27 +188,10 @@ else
     alias reload-zsh='source ~/.zshrc'
 fi
 
-if [ -f  ~/.functions ]; then
-    source ~/.functions
-fi
-
-# if oh-my-posh is installed, initialise it based on hostname.
-if [ -x "$(command -v oh-my-posh)" ]; then
-    case "$(hostname)" in
-    "debian-8gb-hel1-1")
-        theme_name="1_shell"
-        ;;
-    "naelaedra")
-        theme_name="hunk"
-        ;;
-    "tyrande")
-        theme_name="M365Princess"
-        ;;
-    *)
-        theme_name="M365Princess"
-        ;;
-    esac
-
+# if oh-my-posh is installed, initialise it with the profile's theme.
+# theme_name always has a default set up top, so no empty-value fallback is needed.
+if [ -x "$(command -v oh-my-posh)" ] && [ -n "$theme_name" ]; then
+    print -u2 "zshrc: oh-my-posh theme set to $theme_name"
     eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/${theme_name}.omp.json)"
 fi
 

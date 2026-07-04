@@ -101,12 +101,22 @@ if [ -f ~/.aliases ]; then
     . ~/.aliases
 fi
 
+# Source private aliases (machine-local / not committed to the public repo)
+if [ -f ~/.aliases_private ]; then
+    . ~/.aliases_private
+fi
+
 # Special alias to reload .bashrc
 alias reload-bash='source ~/.bashrc'
 
 # Source functions file if it exists
 if [ -f ~/.functions ]; then
     . ~/.functions
+fi
+
+# Source private functions (machine-local / not committed to the public repo)
+if [ -f ~/.functions_private ]; then
+    . ~/.functions_private
 fi
 
 # if oh-my-posh is installed, initialise it

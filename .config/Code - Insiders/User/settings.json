@@ -42,7 +42,6 @@
     "settingsSync.ignoredExtensions": [],
     "editor.multiCursorModifier": "ctrlCmd",
     "chat.commandCenter.enabled": true,
-    "github.copilot.advanced": {},
     "github.copilot.nextEditSuggestions.enabled": true,
     "claudeCode.preferredLocation": "panel",
     "chat.tools.terminal.outputLocation": "chat",

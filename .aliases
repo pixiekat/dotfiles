@@ -7,23 +7,6 @@ service_exists() {
     fi
 }
 
-alias restart-apache='sudo systemctl reload apache2'
-alias restart-php='sudo systemctl reload php8.3-fpm'
-
-alias start-apache='sudo systemctl start apache2'
-alias start-php='sudo systemctl start php8.3-fpm'
-
-alias status-apache='sudo systemctl status apache2'
-alias status-php='sudo systemctl status php8.3-fpm'
-
-alias stop-apache='sudo systemctl stop apache2'
-alias stop-php='sudo systemctl stop php8.3-fpm'
-
-# this should exist but we still want to check
-if [ -f /etc/hosts ]; then
-    alias pixiekat-edit-hosts='sudo nano /etc/hosts'
-fi
-
 # does btop exist?
 if [ -x "$(command -v btop)" ]; then
     alias what-the-fuck-is-going-on='btop'
@@ -60,27 +43,6 @@ if [ -d ~/webdev ]; then
     alias cdwebdev='cd ~/webdev'
 fi
 
-# does docker exist?
-if [ -x "$(command -v docker)" ]; then
-    # use docker ps -a --filter "name=ollama" to determine if ollama container is running
-    if [ -n "$(docker ps -a --filter "name=ollama" --format '{{.Names}}')" ]; then
-        alias ollama-ls='docker exec -it ollama ollama ls'
-        alias ollama-run='docker exec -it ollama ollama run'
-    fi
-
-    alias pixiekat-docker-ps='docker ps'
-    alias pixiekat-docker-compose-dev="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
-    alias pixiekat-dcdev='pixiekat-docker-compose-dev'
-fi
-
-# does jellyfin exist?
-if [ -x "$(command -v jellyfin)" ]; then
-    alias jellystart='sudo systemctl start jellyfin'
-    alias jellystop='sudo systemctl stop jellyfin'
-    alias jellyrestart='sudo systemctl restart jellyfin'
-    alias jellystatus='sudo systemctl status jellyfin'
-fi
-
 # does resolvectl exist?
 if [ -x "$(command -v resolvectl)" ]; then
     alias refresh-dns-caches='sudo resolvectl flush-caches'
@@ -94,97 +56,6 @@ if [ -x "$(command -v rclone)" ]; then
     alias reload-user-daemon-and-reload-rclone-shares='systemctl daemon-reload --user && reload-rclone-shares'
 fi
 
-# hyfetch, if exists, aliases
-if [ -x "$(command -v hyfetch)" ]; then
-    alias blahajfetch='hyfetch -p transgender'
-    alias hy-effable-husbands='hyfetch -p nonbinary'
-    alias ineffable-husbands='hy-effable-husbands'
-    alias hyclexa='hyfetch -p bisexual'
-    alias clexa-forever='hyclexa'
-    alias team-free-will='hyfetch -p queer'
-    alias destiel-will-never-die='hyfetch -p omnisexual'
-    alias baby-its-klaine-outside='hyfetch -p rainbow'
-fi
-
-# vs code aliases, if code exists
-
-# first check if we have code-insiders and alias it to code, if code doesn't exist.
-if [ -x "$(command -v code-insiders)" ] && [ ! -x "$(command -v code)" ]; then
-    alias code='code-insiders'
-fi
-
-# check to see if code is executable or if it's alised (in the case of code-insiders) before adding the rest of the aliases
-if which code &>/dev/null || which code-insiders &>/dev/null; then
-    export EDITOR='code'
-    alias code-remote='code --remote ssh-remote+pixiekat'
-
-    # open current directory in code
-    alias open-in-vscode='code $(pwd) 2>/dev/null &'
-fi
-
-# sublime text aliases, if subl exists
-if [ -x "$(command -v subl)" ]; then
-    alias open-in-sublime='subl $(pwd) 2>/dev/null &'
-fi
-
-# Git Cola aliases
-if [ -x "$(command -v flatpak)" ]; then
-    if flatpak list --app | grep -q "git.cola" 2>/dev/null; then
-        alias git-cola='flatpak run com.github.git_cola.git-cola cola 2>/dev/null'
-        alias open-in-git-cola='flatpak run com.github.git_cola.git-cola cola --repo "$(pwd)" 2>/dev/null &'
-    fi
-
-    # get list of all installed flatpaks.
-    # deprecated, use flatpak-list-installed
-    alias list-flatpaks='flatpak list --app'
-    alias flatpak-list-installed='flatpak list --app'
-
-    # get outdated flatpaks
-    alias flatpak-outdated='flatpak remote-ls --updates'
-else
-    # if flatpak doesn't exist, check if git-cola exists and add alias
-    if [ -x "$(command -v git-cola)" ]; then
-        alias git-cola='git-cola 2>/dev/null'
-        alias open-in-git-cola='git-cola --repo "$(pwd)" 2>/dev/null &'
-    fi
-fi
-
-if [ -x "$(command -v php)" ]; then
-    alias pixiekat-switch-php='sudo update-alternatives --config php'
-fi
-
-# does composer exist? if so, add some aliases
-if [ -x "$(command -v composer)" ]; then
-    #does php 8.2 exist? if so, add some aliases
-    if [ -x "$(command -v php8.2)" ]; then
-        alias composer82='php8.2 /usr/local/bin/composer'
-        if [ -x "$(command -v acli)" ]; then
-            alias acli82='/usr/bin/php8.2 /usr/local/bin/acli'
-        fi
-    fi
-    #does php 8.3 exist? if so, add some aliases
-    if [ -x "$(command -v php8.3)" ]; then
-        alias composer83='php8.3 /usr/local/bin/composer'
-        if [ -x "$(command -v acli)" ]; then
-            alias acli83='/usr/bin/php8.3 /usr/local/bin/acli'
-        fi
-    fi
-    #does php 8.4 exist? if so, add some aliases
-    if [ -x "$(command -v php8.4)" ]; then
-        alias composer84='php8.4 /usr/local/bin/composer'
-        if [ -x "$(command -v acli)" ]; then
-            alias acli84='/usr/bin/php8.4 /usr/local/bin/acli'
-        fi
-    fi
-    #does php 8.5 exist? if so, add some aliases
-    if [ -x "$(command -v php8.5)" ]; then
-        alias composer85='php8.5 /usr/local/bin/composer'
-        if [ -x "$(command -v acli)" ]; then
-            alias acli85='/usr/bin/php8.5 /usr/local/bin/acli'
-        fi
-    fi
-fi
-
 if [ -d ~/.zoom/data/cefcache ]; then
     alias zoom-clear-cache='rm -rf ~/.zoom/data/cefcache/ && mkdir -p ~/.zoom/data/cefcache'
 fi
@@ -194,44 +65,6 @@ if [ -x "$(command -v apt)" ]; then
     alias apt-check-outdated="sudo apt update && apt list --upgradable"
     alias apt-upgrade-php='sudo apt install --only-upgrade --no-install-recommends "^php"'
     alias apt-upgrade-apache='sudo apt install --only-upgrade --no-install-recommends "^apache"'
-fi
-
-# Package manager judgement (corrected for Red Hat crimes)
-if [ -x "$(command -v apt)" ]; then
-    echo "debian? good puppygirl!"
-else
-    # not-debian fallbacks
-    if [ -x "$(command -v nix-env)" ] || [ -x "$(command -v nix)" ]; then
-        echo "NixOS. you've ascended. or lost your mind. possibly both."
-    elif [ -x "$(command -v nix-env)" ] || [ -x "$(command -v nix)" ]; then
-        echo "NixOS. you've ascended. or lost your mind. possibly both."
-    elif [ -x "$(command -v port)" ]; then
-        echo "macports?? oh you're a PURIST temu unix user. respect, kind of."
-    elif [ -x "$(command -v brew)" ]; then
-        echo "apple tax on temu unix in this economy?"
-    elif [ -x "$(command -v yum)" ]; then
-        echo "Oh god what is wrong with you?"
-    elif [ -x "$(command -v dnf)" ]; then
-        echo "Oh god what is wrong with you? (but make it newer)"
-    elif [ -x "$(command -v pacman)" ]; then
-        echo "btw i use arch (you didn't even have to tell me)"
-    elif [ -x "$(command -v zypper)" ]; then
-        echo "openSUSE? bold choice. respect."
-    elif [ -x "$(command -v apk)" ]; then
-        echo "Alpine. minimalist. i see you."
-    elif [ -x "$(command -v port)" ]; then
-        echo "macports?? oh you're a PURIST temu unix user. respect, kind of."
-    elif [ "$(uname)" = "Darwin" ]; then
-        echo "darwin detected. condolences re: the dock."
-    elif [ -x "$(command -v emerge)" ]; then
-        echo "...you compile everything? sir/madam/friend, your CPU is tired."
-    elif grep -qi microsoft /proc/version 2>/dev/null; then
-        echo "WSL? linux in a windows trenchcoat. we see you."
-    fi
-fi
-
-if [ -f ~/.aliases_private ]; then
-    source ~/.aliases_private
 fi
 
 # override web_search plugin to get rid of shitty elon musk sites

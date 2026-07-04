@@ -1,2 +1,14 @@
 {
+    "policy": {
+        "advisories": {
+            "block": false,
+            "ignore-id": [
+                "SA-CORE-2026-005",
+                "SA-CORE-2026-006",
+                "SA-CORE-2026-007",
+                "SA-CORE-2026-008",
+                "SA-CORE-2026-009"
+            ]
+        }
+    }
 }

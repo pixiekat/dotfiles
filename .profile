@@ -57,3 +57,23 @@ fi
 if [ -d "$HOME/webdev/projects/codeberg/pixiekat/bash-games" ]; then
     PATH="$HOME/webdev/projects/codeberg/pixiekat/bash-games:$PATH"
 fi
+
+# Shell-agnostic aliases and functions, sourced from one place so both shells
+# inherit them (zsh pulls this via `source ~/.profile` in .zshrc; bash reaches
+# its own copies via .bashrc).
+#
+# Guarded to INTERACTIVE shells only ($- contains 'i'). Two reasons:
+#   1. aliases/functions are meaningless non-interactively, so there's nothing
+#      to gain from loading them in a script or one-shot.
+#   2. it keeps a non-interactive /bin/sh -- e.g. the display manager sourcing
+#      ~/.profile at graphical login -- from parsing bash/zsh-only syntax such
+#      as hyphenated function names (pixiekat-*), which dash rejects outright.
+# Interactive zsh/bash accept that syntax fine, so our names stay ergonomic.
+case "$-" in
+  *i*)
+    [ -f "$HOME/.aliases" ]           && . "$HOME/.aliases"
+    [ -f "$HOME/.functions" ]         && . "$HOME/.functions"
+    [ -f "$HOME/.aliases_private" ]   && . "$HOME/.aliases_private"
+    [ -f "$HOME/.functions_private" ] && . "$HOME/.functions_private"
+    ;;
+esac

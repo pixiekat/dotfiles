@@ -65,6 +65,9 @@ DOTFILES=(
     .config/composer/config.json
     .config/composer/composer.json
     .config/hyfetch.json
+    .config/zsh/profiles/personal.zsh
+    .config/zsh/profiles/work.zsh
+    .config/zsh/profiles/default.zsh
     .functions
     .gitconfig
     .inputrc
