@@ -110,7 +110,7 @@ case "$TERM_PROFILE" in
     # shortcuts, docker, git -- whatever keeps you from fat-fingering a deploy.
     print -u2 "zshrc: loading work profile"
     source "$ZSH_PROFILE_DIR/work.zsh"
-    work_plugins=(composer docker docker-compose drush git git-autofetch git-commit git-extras gitignore git-prompt ssh symfony sudo)
+    work_plugins=(composer docker docker-compose drush git git-auto-fetch git-commit git-extras gitignore git-prompt ssh symfony sudo)
     # defaults first, then the work-only plugins appended after them.
     plugins=("${default_plugins[@]}" "${work_plugins[@]}")
     case "$HOST" in                        # distinct prompt per work machine
