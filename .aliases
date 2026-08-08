@@ -74,5 +74,5 @@ alias twitter="echo fuck elon musk"
 
 # check if command iptables exists and returns something
 if [ -x "$(command -v iptables)" ]; then
-    alias iptables-view-jails='sudo iptables -L -n -v | awk '/^Chain f2b-/{p=1} /^Chain ts-/{p=0} p'
+    alias iptables-view-jails="sudo iptables -L -n -v | awk '/^Chain f2b-/{p=1} /^Chain ts-/{p=0} p'"
 fi
