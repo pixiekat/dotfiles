@@ -73,4 +73,7 @@ alias grokcom="echo fuck elon musk"
 alias twitter="echo fuck elon musk"
 
 # check if command iptables exists and returns something
-alias iptables-view-jails="sudo iptables -L -n -v | awk '/^Chain f2b-/{p=1} /^Chain ts-/{p=0} p'"
+if [ -x /usr/sbin/iptables ]; then
+    alias iptables-view-jails='sudo iptables -L -n -v | awk "/^Chain f2b-/{p=1} /^Chain ts-/{p=0} p"'
+    alias iptables-view-ports='sudo iptables -L INPUT -n -v --line-numbers | grep f2b'
+fi
