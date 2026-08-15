@@ -136,8 +136,6 @@ DOTFILES=(
 # ---------------------------------------------------------------------------
 
 
-
-
 # -- Preflight checks -------------------------------------------------------
 
 # Make sure the dotfiles directory actually exists
@@ -174,6 +172,7 @@ if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
     DOTFILES+=(
         .gitconfig.local
         .claude/CLAUDE.md
+        .claude/settings.json
     )
 fi
 
