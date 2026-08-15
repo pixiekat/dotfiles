@@ -17,12 +17,27 @@
 # repo to one of those locations.
 if [ -d "$HOME/webdev/projects/codeberg/pixiekat/dotfiles" ]; then
     DOTFILES_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles"
+    info "Using dotfiles directory: $DOTFILES_DIR"
 elif [ -d "$HOME/dotfiles" ]; then
     DOTFILES_DIR="$HOME/dotfiles"
+    info "Using dotfiles directory: $DOTFILES_DIR"
 else
     echo "Error: Dotfiles directory not found at $HOME/webdev/projects/codeberg/pixiekat/dotfiles"
     echo "Please clone your dotfiles repo there first, then re-run this script."
     exit 1
+fi
+
+# Do the same but set DOTFILES_PRIVATE_DIR to the dotfiles-private directory if it exists, else set it to empty string
+if [ -d "$HOME/webdev/projects/codeberg/pixiekat/dotfiles-private" ]; then
+    DOTFILES_PRIVATE_DIR="$HOME/webdev/projects/codeberg/pixiekat/dotfiles-private"
+    info "Using dotfiles-private directory: $DOTFILES_PRIVATE_DIR"
+elif [ -d "$HOME/dotfiles-private" ]; then
+    DOTFILES_PRIVATE_DIR="$HOME/dotfiles-private"
+    info "Using dotfiles-private directory: $DOTFILES_PRIVATE_DIR"
+else
+    info "Error: Dotfiles-private directory not found at $HOME/webdev/projects/codeberg/pixiekat/dotfiles-private"
+    info "Continuing without dotfiles-private directory."
+    DOTFILES_PRIVATE_DIR=""
 fi
 
 # Parse arguments
@@ -137,19 +152,25 @@ fi
 
 # -- Main installation loop -------------------------------------------------
 
-# if there is a dotfiles-private directory onelevel up from the dotfiles directory, then we should also look for files in there and link them as well
-# this allows us to keep sensitive files like .gitconfig.local out of the main repo, while still having them installed by this script
-if [[ -d "$DOTFILES_DIR/../dotfiles-private" ]]; then
+# we set a DOTFILES_PRIVATE_DIR variable to the dotfiles-private directory if it exists, else set it to empty string
+if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
     info "Found dotfiles-private directory, including those files in the installation process."
-    # we can use the same DOTFILES array since the paths will be relative to the main dotfiles directory, so .gitconfig.local will be in the list and we'll just need to check for it in both places when we go to link it
+    info "Using dotfiles-private directory: $DOTFILES_PRIVATE_DIR"
+
     DOTFILES+=(
-        ../dotfiles-private/.gitconfig.local
-        ../dotfiles-private/.claude/CLAUDE.md
+        .gitconfig.local
+        .claude/CLAUDE.md
     )
 fi
 
 for file in "${DOTFILES[@]}"; do
     src="$DOTFILES_DIR/$file"
+    # src might be in the dotfiles-private directory, so we check if it exists there first
+    # DOTFILES array, if its a private dir file, will have the full path to the private dir, so traverse to the private dir if it exists, else use the public dir
+    if [[ -n "$DOTFILES_PRIVATE_DIR" && -e "$DOTFILES_PRIVATE_DIR/$file" ]]; then
+        src="$DOTFILES_PRIVATE_DIR/$file"
+    fi
+
     dest="$HOME/$file"
 
     # Skip if the source file doesn't exist in the repo
