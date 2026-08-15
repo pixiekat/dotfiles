@@ -10,6 +10,23 @@
 #
 # ---------------------------------------------------------------------------
 
+# -- Helpers ----------------------------------------------------------------
+#
+# These are defined FIRST, before any other code runs. Bash resolves a function
+# name at call time, not parse time, so a function must have already been
+# *executed* (its definition statement run) before anything can call it.
+# Defining these below the configuration block meant the info() calls down there
+# fired before info() existed, and printed "info: command not found" to stderr.
+
+# Print a status message
+info()    { echo "[INFO]  $*"; }
+success() { echo "[OK]    $*"; }
+warn()    { echo "[WARN]  $*"; }
+error()   { echo "[ERROR] $*" >&2; }
+
+# ---------------------------------------------------------------------------
+
+
 # -- Configuration ----------------------------------------------------------
 
 # Use webdev/projects/codeberg/pixiekat/dotfiles as the source of truth for where the dotfiles are located.
@@ -119,15 +136,6 @@ DOTFILES=(
 # ---------------------------------------------------------------------------
 
 
-# -- Helpers ----------------------------------------------------------------
-
-# Print a status message
-info()    { echo "[INFO]  $*"; }
-success() { echo "[OK]    $*"; }
-warn()    { echo "[WARN]  $*"; }
-error()   { echo "[ERROR] $*" >&2; }
-
-# ---------------------------------------------------------------------------
 
 
 # -- Preflight checks -------------------------------------------------------
@@ -139,9 +147,15 @@ if [[ ! -d "$DOTFILES_DIR" ]]; then
     exit 1
 fi
 
-# Create the backup directory (only if we'll actually need it)
-mkdir -p "$BACKUP_DIR"
-info "Backup directory: $BACKUP_DIR"
+# Create the backup directory (only if we'll actually need it).
+# A dry run must not touch the filesystem, otherwise every --dry-run leaves an
+# empty timestamped directory behind in ~/.dotfiles_backup/
+if [[ "$IS_DRY_RUN" == "True" ]]; then
+    info "[DRY RUN] Would create backup directory: $BACKUP_DIR"
+else
+    mkdir -p "$BACKUP_DIR"
+    info "Backup directory: $BACKUP_DIR"
+fi
 
 if [[ ! -f "$HOME/.gitconfig.local" ]]; then
     warn ".gitconfig.local not found — copy .gitconfig.local.example and fill in your details!"
@@ -167,8 +181,14 @@ for file in "${DOTFILES[@]}"; do
     src="$DOTFILES_DIR/$file"
     # src might be in the dotfiles-private directory, so we check if it exists there first
     # DOTFILES array, if its a private dir file, will have the full path to the private dir, so traverse to the private dir if it exists, else use the public dir
-    if [[ -n "$DOTFILES_PRIVATE_DIR" && -e "$DOTFILES_PRIVATE_DIR/$file" ]]; then
-        src="$DOTFILES_PRIVATE_DIR/$file"
+    #
+    # We test -e OR -L, matching the "source not found" check further down.
+    # -e follows a symlink and reports false for a *broken* one, so testing -e
+    # alone would silently fall back to the public copy instead of warning us
+    # about a dangling link in dotfiles-private.
+    priv_src="$DOTFILES_PRIVATE_DIR/$file"
+    if [[ -n "$DOTFILES_PRIVATE_DIR" && ( -e "$priv_src" || -L "$priv_src" ) ]]; then
+        src="$priv_src"
     fi
 
     dest="$HOME/$file"
