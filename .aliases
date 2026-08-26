@@ -63,6 +63,7 @@ fi
 # apt aliases
 if [ -x "$(command -v apt)" ]; then
     alias apt-check-outdated="sudo apt update && apt list --upgradable"
+    alias apt-install-no-recomments="sudo apt install --only-upgrade --no-install-recommends"
     alias apt-upgrade-php='sudo apt install --only-upgrade --no-install-recommends "^php"'
     alias apt-upgrade-apache='sudo apt install --only-upgrade --no-install-recommends "^apache"'
 fi
