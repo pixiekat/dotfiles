@@ -1,7 +1,11 @@
 {
     "config": {
+      "policy": {
+        "advisories": {
+            "block": false
+         }
+      },
       "platform": {
-        "php": "8.2"
       }
     }
 }
