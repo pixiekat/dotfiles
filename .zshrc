@@ -130,8 +130,9 @@ case "$TERM_PROFILE" in
     # defaults first, then the personal-only plugins appended after them.
     plugins=("${default_plugins[@]}" "${personal_plugins[@]}")
 
+    # hunk, mM365Princess
     case "$HOST" in                        # per-machine prompt flair
-        naelaedra)  theme_name="hunk" ;;
+        naelaedra)  theme_name="iranian-solidarity" ;;
         tyrande)    theme_name="M365Princess" ;;
         *)          theme_name="M365Princess" ;;
     esac
