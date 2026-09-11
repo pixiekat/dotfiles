@@ -81,6 +81,9 @@ if [ -x "$(command -v apt)" ]; then
     alias apt-upgrade-apache='sudo apt install --only-upgrade --no-install-recommends "^apache"'
     alias apt-update-browsers='sudo apt install --only-upgrade "^vivaldi" "^librewolf" "^firefox"'
     alias apt-update-ide='sudo apt install --only-upgrade "^code" "^sublime"'
+    alias apt-cruft='apt list "~c" 2>/dev/null'
+    alias apt-why='apt rdepends --installed'
+    alias apt-changes='apt changelog'
 fi
 
 # override web_search plugin to get rid of shitty elon musk sites
