@@ -219,7 +219,8 @@ pixiekat-ytgrab() {
   # the '/' is yt-dlp's "try-left-then-right" operator — graceful degradation
   # expressed as a format string. [height<=480] is ANCHORED so 480 can never
   # accidentally match inside "1080" the way the old substring regex could.
-  local fmt="bv*[height<=${res}][ext=mp4]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
+  #local fmt="bv*[height<=${res}][ext=mp4]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
+  local fmt="bv*[height<=${res}][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
 
   # --- the grab -----------------------------------------------------------
   # throttle flags keep us a polite scraper (essential once you loop over many
@@ -297,7 +298,20 @@ pixiekat-dotfiles-rename-master-branch() {
     cd "$current_dir"
 }
 
-# this will run chown, chmod, and find/setbit to ensure the media group (which includes jellyfin) has the necessary permissions to read/write/execute files in the media folders, and that new files created there will inherit the same permissions
+# Ensure the media group (which includes jellyfin) can read/write/execute in the
+# media folders, and that newly created files there inherit the same group.
+#
+# Usage:
+#   pixiekat-dotfiles-set-permissions-on-media-folders            # apply changes
+#   pixiekat-dotfiles-set-permissions-on-media-folders --dry-run  # show what WOULD change
+#
+# How it works:
+#   - chown  : hands ownership to $user:media so the group is right
+#   - g+rws on dirs : r/w/x for the group, PLUS setgid ("s") so anything created
+#                     inside inherits the media group instead of the creator's
+#                     default group. This is the bit that stops new downloads
+#                     being invisible to Jellyfin.
+#   - g+rw on files : existing files become group readable/writable
 pixiekat-dotfiles-set-permissions-on-media-folders() {
     local -a media_paths=(
         "/mnt/storage/media/libraries/films"
@@ -308,7 +322,16 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
         "/mnt/ata-WDC_WD80EDAZ-11CEWB0_WD-RD1ZAG5H-part1/Media/TV Series"
     )
 
-    # check to see if the media group exists before trying to set permissions
+    # --- parse args -------------------------------------------------------
+    # A simple flag check. Kept loose on purpose: any of these spellings works.
+    local dry_run=0
+    case "$1" in
+        --dry-run|-n|--dryrun) dry_run=1 ;;
+        "") ;;  # no args is the normal case
+        *) echo "Unknown option: $1 (use --dry-run or no arguments)"; return 2 ;;
+    esac
+
+    # --- sanity checks ----------------------------------------------------
     if ! getent group media > /dev/null; then
         echo "Media group does not exist, skipping permission setting for media folders."
         return 1
@@ -316,18 +339,68 @@ pixiekat-dotfiles-set-permissions-on-media-folders() {
 
     local user="$(whoami)"
 
+    if (( dry_run )); then
+        echo "=== DRY RUN: nothing will be changed ==="
+    fi
+
     for media_path in "${media_paths[@]}"; do
 
-        # check if path exists before trying to set permissions
-        if [ -d "$media_path" ]; then
-            echo "Setting permissions for $media_path"
-            sudo chown -R "$user":media "$media_path"
-            find "$media_path" -type d -exec chmod g+rws {} +  # setgid so new files inherit media group
-            find "$media_path" -type f -exec chmod g+rw {} +   # existing files get group read/write
-        else
+        if [ ! -d "$media_path" ]; then
             echo "Warning: Path $media_path does not exist, skipping permission setting for this path."
+            continue
+        fi
+
+        # Warn about filesystems that ignore chmod/chown entirely (NTFS, exFAT,
+        # FAT). On those, permissions come from fstab mount options (uid=, gid=,
+        # umask=) and this function is a no-op — better to know than to wonder.
+        local fstype
+        fstype="$(findmnt -no FSTYPE --target "$media_path" 2>/dev/null)"
+        case "$fstype" in
+            ntfs|ntfs3|fuseblk|exfat|vfat|msdos)
+                echo "Warning: $media_path is on $fstype, which ignores chmod/chown."
+                echo "         Set permissions via fstab mount options instead. Skipping."
+                continue
+                ;;
+        esac
+
+        echo "Setting permissions for $media_path  (fstype: ${fstype:-unknown})"
+
+        # --- find only what actually needs changing -----------------------
+        # ! -perm -g+s  = "does NOT already have the setgid bit"
+        # ! -perm -g+w  = "is NOT already group-writable"
+        # Filtering like this means repeat runs are cheap: on an already-correct
+        # library, find matches nothing and no chmod is executed at all. Without
+        # it, chmod rewrites every inode on multi-TB drives on every single run.
+        #
+        # -print is used in dry-run mode so you see the actual paths that would
+        # change, rather than a summary you have to trust.
+        if (( dry_run )); then
+            echo "  [dry-run] would: sudo chown -R $user:media \"$media_path\""
+
+            local dir_count file_count
+            dir_count="$(sudo find "$media_path" -type d ! -perm -g+s -printf '.' 2>/dev/null | wc -c)"
+            file_count="$(sudo find "$media_path" -type f ! -perm -g+w -printf '.' 2>/dev/null | wc -c)"
+
+            echo "  [dry-run] would chmod g+rws on $dir_count director(ies) missing setgid"
+            echo "  [dry-run] would chmod g+rw  on $file_count file(s) not group-writable"
+
+            # Uncomment to list the individual paths instead of just counting:
+            # sudo find "$media_path" -type d ! -perm -g+s -print
+            # sudo find "$media_path" -type f ! -perm -g+w -print
+        else
+            sudo chown -R "$user":media "$media_path"
+
+            # sudo on the finds too, so a file owned by another account (e.g. a
+            # download client running as its own user) doesn't cause chmod to
+            # error out partway through.
+            sudo find "$media_path" -type d ! -perm -g+s -exec chmod g+rws {} +
+            sudo find "$media_path" -type f ! -perm -g+w -exec chmod g+rw {} +
         fi
     done
+
+    if (( dry_run )); then
+        echo "=== DRY RUN complete — re-run without --dry-run to apply ==="
+    fi
 }
 
 winget() {
@@ -338,6 +411,13 @@ winget() {
         . /etc/os-release
         distro=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
     fi
+
+    # ID is ubuntu, so sniff the description string instead
+    desc=$(grep -sm1 '^DISTRIB_DESCRIPTION=' /etc/lsb-release | cut -d= -f2- | tr -d '"')
+    case "${desc,,}" in
+        *"hannah montana"*) distro=hannahmontana ;;
+        *uwuntu*)           distro=uwuntu ;;
+    esac
 
     trap '' SIGINT EXIT
 
@@ -392,6 +472,6 @@ pixiekat-claude-uninstall() {
     rm -rf ~/.claude
 
     if [ -f ~/.claude.json ]; then
-      rm ~/.claude.json
+        rm ~/.claude.json
     fi
 }
