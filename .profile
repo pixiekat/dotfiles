@@ -14,6 +14,10 @@ if [ -d "$HOME/bin" ]; then
     PATH="$HOME/bin:$PATH"
 fi
 
+if [ -d "$HOME/webdev/projects/codeberg/pixiekat/dotfiles/bin" ]; then
+    PATH="$HOME/webdev/projects/codeberg/pixiekat/dotfiles/bin:$PATH"
+fi
+
 if [ -d "$HOME/.local/bin" ]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
