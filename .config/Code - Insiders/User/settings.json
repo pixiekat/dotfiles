@@ -4,8 +4,9 @@
     },
     "redhat.telemetry.enabled": false,
     "editor.wordWrap": "on",
-    "security.workspace.trust.untrustedFiles": "open",
+    "security.workspace.trust.untrustedFiles": "prompt",
     "workbench.iconTheme": "catppuccin-frappe",
+    "telemetry.telemetryLevel": "off",
     "[dart]": {
         "editor.formatOnSave": true,
         "editor.formatOnType": true,
@@ -65,5 +66,7 @@
         ".profile": "shellscript",
         "*.sh": "shellscript"
     },
-    "editor.quickSuggestions": "offWhenInlineCompletions"
+    "github.copilot.enable": {
+        "*": true
+    }
 }
