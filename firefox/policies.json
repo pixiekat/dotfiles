@@ -28,6 +28,13 @@
                     "Alias": "cb"
                 },
                 {
+                    "Name": "AbuseIPDB",
+                    "URLTemplate": "https://www.abuseipdb.com/check/{searchTerms}",
+                    "Method": "GET",
+                    "IconURL": "https://www.abuseipdb.com/favicon.ico",
+                    "Alias": "abuseipdb"
+                },
+                {
                     "Name": "Github",
                     "URLTemplate": "https://github.com/search?q={searchTerms}&type=repositories",
                     "Method": "GET",
