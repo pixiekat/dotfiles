@@ -119,10 +119,6 @@ DOTFILES=(
     .nanorc
     .oh-my-zsh/custom/plugins/you-should-use/you-should-use.plugin.zsh
     .oh-my-zsh/custom/plugins/you-should-use/zsh-you-should-use.plugin.zsh
-    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-    .oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-    .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
-    .oh-my-zsh/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     .profile
     .var/app/org.kde.dolphin/config/dolphinrc
     .var/app/org.kde.dolphin/config/kservicemenurc
