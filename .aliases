@@ -76,14 +76,35 @@ fi
 # apt aliases
 if [ -x "$(command -v apt)" ]; then
     alias apt-check-outdated="sudo apt update && apt list --upgradable"
-    alias apt-install-no-recomments="sudo apt install --only-upgrade --no-install-recommends"
+    alias apt-upgrade-no-recommends="sudo apt install --only-upgrade --no-install-recommends"
     alias apt-upgrade-php='sudo apt install --only-upgrade --no-install-recommends "^php"'
     alias apt-upgrade-apache='sudo apt install --only-upgrade --no-install-recommends "^apache"'
     alias apt-update-browsers='sudo apt install --only-upgrade "^vivaldi" "^librewolf" "^firefox"'
+    alias apt-update-makemkv='apt-upgrade-no-recommends "^makemkv"'
+    alias apt-update-ffmpeg='apt-upgrade-no-recommends "^ffmpeg"'
     alias apt-update-ide='sudo apt install --only-upgrade "^code" "^sublime"'
     alias apt-cruft='apt list "~c" 2>/dev/null'
     alias apt-why='apt rdepends --installed'
     alias apt-changes='apt changelog'
+
+    # deprecated, to be removed in the future
+    alias apt-install-no-recomments='apt-install-no-recommends'
+    apt-install-no-recommends() {
+        echo "⚠️ apt-install-no-recommends is deprecated, use apt-upgrade-no-recommends" >&2
+        sudo apt install --only-upgrade --no-install-recommends "$@"
+    }
+fi
+
+#upower aliases
+if [ -x "$(command -v upower)" ]; then
+    alias upower-info-battery='upower -i $(upower -e | grep BAT)'
+    alias upower-info-all='upower -i $(upower -e)'
+    alias upower-info-all-devices='upower -i $(upower -e)'
+    alias upower-list-batteries='upower -e | grep BAT'
+    alias upower-list-battery-devices='upower -e | grep BAT'
+    alias upower-list-all-devices='upower -e'
+    alias upower-list-all='upower -e'
+    alias upower-info='upower -i'
 fi
 
 # override web_search plugin to get rid of shitty elon musk sites
