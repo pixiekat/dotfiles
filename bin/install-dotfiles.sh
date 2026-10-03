@@ -240,35 +240,75 @@ for file in "${DOTFILES[@]}"; do
     # grep -qE does a quiet (-q) extended regex (-E) match — exits 0 if found.
     first_line="$(head -n 1 "$src" 2>/dev/null)"
 
-    if [[ "$src" == *"btop/themes"* && "$src" == *".theme" ]]; then
-        if [[ "$IS_DRY_RUN" == "True" ]]; then
-            info "[DRY RUN] Would link btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
-        else
-            mkdir -p "$HOME/.config/btop/themes"
-            ln -sf "$src" "$HOME/.config/btop/themes/$(basename $src)"
-            success "Linked btop theme: $dest -> $HOME/.config/btop/themes/$(basename $src)"
-        fi
-        continue
-    fi
+    # ------------------------------------------------------------------
+    # Per-file hooks: extra setup specific files need.
+    # case runs the FIRST pattern that matches and then stops, so each
+    # file gets at most one of these sections.
+    # ------------------------------------------------------------------
+    case "$src" in
 
-    if [[ "$src" == *.sh ]] || echo "$first_line" | grep -qE '^#!(.*)(bash|sh|zsh|ksh)'; then
+        # btop themes: one pattern replaces the two-part && check.
+        # * matches across slashes in case patterns, so this means
+        # "anything, then btop/themes/, then anything ending in .theme"
+        *btop/themes/*.theme)
+            theme_name="$(basename "$src")"
+            theme_dest="$HOME/.config/btop/themes/$theme_name"
+            if [[ "$IS_DRY_RUN" == "True" ]]; then
+                info "[DRY RUN] Would link btop theme: $theme_dest -> $src"
+            else
+                mkdir -p "$HOME/.config/btop/themes"
+                ln -sf "$src" "$theme_dest"
+                success "Linked btop theme: $theme_dest -> $src"
+            fi
+            continue    # still skips to the next file in the loop
+            ;;
+
+        # nano: make sure the cache/backups directory exists
+        *.nanorc)
+            if [[ ! -d "$HOME/.cache/nano/backups" ]]; then
+                if [[ "$IS_DRY_RUN" == "True" ]]; then
+                    info "[DRY RUN] Would create nano cache/backups directory: $HOME/.cache/nano/backups"
+                else
+                    info "Creating nano cache/backups directory: $HOME/.cache/nano/backups"
+                    mkdir -p "$HOME/.cache/nano/backups"
+                fi
+            fi
+            ;;
+
+        # ssh configs: lock down permissions.
+        # ssh rejects group/world-writable configs, and Mint's umask (002)
+        # plus git (which doesn't track modes) means a fresh clone is 664
+        *.ssh/config*)
+            if [[ "$IS_DRY_RUN" == "True" ]]; then
+                info "[DRY RUN] Would chmod 600 $src and chmod 700 ~/.ssh and ~/.ssh/config.d"
+            else
+                info "Securing ssh permissions for: $src"
+                # does ~/.ssh/config.d exist? if not, create it
+                if [[ ! -d "$HOME/.ssh/config.d" ]]; then
+                    info "Creating ~/.ssh/config.d directory"
+                    mkdir -p "$HOME/.ssh/config.d"
+                fi
+                info "Setting permissions: chmod 700 ~/.ssh and ~/.ssh/config.d"
+                chmod 700 "$HOME/.ssh" "$HOME/.ssh/config.d"   # always enforce
+
+                info "Setting permissions: chmod 600 $src"
+                chmod 600 "$src"      # the real file in the repo, not the symlink
+            fi
+            ;;
+
+    esac
+
+    # ------------------------------------------------------------------
+    # Executable check: stays outside the case because it looks at the
+    # file's CONTENTS (the shebang), not just its name, and it can apply
+    # to any file regardless of which hook above matched.
+    # ------------------------------------------------------------------
+    if [[ "$src" == *.sh || "$first_line" =~ ^\#!.*(bash|sh|zsh|ksh) ]]; then
         if [[ "$IS_DRY_RUN" == "True" ]]; then
             info "[DRY RUN] Would mark executable: $src"
         else
             chmod u+x "$src"
             success "Marked executable: $src"
-        fi
-    fi
-
-    # if $src is .nanorc, make sure the cache directory exists for it to store its compiled version
-    if [[ "$src" == *".nanorc" ]]; then
-        if [[ ! -d "$HOME/.cache/nano/backups" ]]; then
-            if [[ "$IS_DRY_RUN" == "True" ]]; then
-                info "[DRY RUN] Would create nano cache/backups directory: $HOME/.cache/nano/backups"
-            else
-                info "Creating nano cache/backups directory: $HOME/.cache/nano/backups"
-                mkdir -p "$HOME/.cache/nano/backups"
-            fi
         fi
     fi
 
