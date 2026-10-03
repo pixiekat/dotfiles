@@ -169,6 +169,8 @@ if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
         .gitconfig.local
         .claude/CLAUDE.md
         .claude/settings.json
+        .ssh/config.d/personal
+        .ssh/config.d/work
     )
 fi
 
