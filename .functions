@@ -475,3 +475,37 @@ pixiekat-claude-uninstall() {
         rm ~/.claude.json
     fi
 }
+
+# does aptitude exist? (the function needs aptitude, not just apt)
+if [ -x "$(command -v aptitude)" ]; then
+    # follow the "why is this installed" chain up to its root
+    # usage: the-whole-fucking-family-tree zip
+    the-whole-fucking-family-tree() {
+        local pkg="$1"       # current package we're asking about
+        local depth=0        # safety limit so we never loop forever
+        local result         # output of the latest aptitude why call
+        local seen=" "       # space-separated list of packages already visited
+
+        while [ -n "$pkg" ] && [ "$depth" -lt 15 ]; do
+            # loop detection: have we asked about this package before?
+            # the spaces around $pkg stop "zip" from matching "unzip"
+            case "$seen" in
+                *" $pkg "*) echo "↻ circular: back at $pkg, stopping"; break ;;
+            esac
+            seen="$seen$pkg "
+
+            result="$(aptitude why "$pkg" 2>/dev/null)"
+
+            # show the whole chain aptitude gave us, not just line one
+            echo "── why $pkg?"
+            echo "$result"
+
+            # stop at the root: installed by hand, or aptitude has no reason
+            echo "$result" | grep -qE "Manually installed|Unable to find a reason" && break
+
+            # first line's field 2 is the top of this chain; ask about it next
+            pkg="$(echo "$result" | head -n 1 | awk '{print $2}')"
+            depth=$((depth + 1))
+        done
+    }
+fi

@@ -93,6 +93,21 @@ if [ -x "$(command -v apt)" ]; then
         echo "⚠️ apt-install-no-recommends is deprecated, use apt-upgrade-no-recommends" >&2
         sudo apt install --only-upgrade --no-install-recommends "$@"
     }
+
+    # build an "Just update everything" alias; apt first but if flatpak is installed, then also && flatpak update -y
+    alias apt-update-all='sudo apt update && sudo apt upgrade && if [ -x "$(command -v flatpak)" ]; then flatpak update; fi'
+
+    # version of above but doesn't prompt for confirmation
+    alias apt-update-all-live-dangerously='sudo apt update && sudo apt upgrade -y && if [ -x "$(command -v flatpak)" ]; then flatpak update -y; fi'
+
+    # version of above but more extreme to also autoclean and autoremove
+    alias apt-update-all-clean='sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y && if [ -x "$(command -v flatpak)" ]; then flatpak update -y; fi'
+
+    # alias to show why a package is installed
+    alias why-the-fuck-is-this-here='apt rdepends --installed'
+
+    # alias to show why a package is installed, but using aptitude instead of apt
+    alias who-the-fuck-asked-me-to-install-this='aptitude why'
 fi
 
 #upower aliases
