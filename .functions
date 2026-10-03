@@ -476,6 +476,25 @@ pixiekat-claude-uninstall() {
     fi
 }
 
+# ------------------------------------------------------------------
+# launch-delinea: SSH into the Delinea jump host and run "launch <id>"
+#
+# Usage:   launch-delinea 11326
+#
+# $1 = the first argument passed to the function (the target ID)
+# ------------------------------------------------------------------
+launch-delinea() {
+    # Guard clause: bail out with a friendly message if no ID was given.
+    # -z tests whether a string is empty. >&2 sends the message to stderr.
+    if [[ -z "$1" ]]; then
+        echo "usage: launch-delinea <id>" >&2
+        return 1   # non-zero = failure, so scripts/&& chains know it failed
+    fi
+
+    # delinea is found in ~/.ssh/config.d/work; see dotfiles-private/.ssh/config.d/work for details.
+    ssh delinea "launch $1"
+}
+
 # does aptitude exist? (the function needs aptitude, not just apt)
 if [ -x "$(command -v aptitude)" ]; then
     # follow the "why is this installed" chain up to its root
