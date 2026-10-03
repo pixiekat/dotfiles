@@ -476,6 +476,14 @@ pixiekat-claude-uninstall() {
     fi
 }
 
+# Clone like normal, then set fileMode false in the new repo.
+# Usage: gclone <url> [folder]
+gclone() {
+    git clone "$@" || return            # stop if the clone failed
+    local dir="${2:-$(basename "$1" .git)}"   # folder name: 2nd arg, or derived from the URL
+    git -C "$dir" config core.fileMode false && echo "fileMode=false set in $dir"
+}
+
 # ------------------------------------------------------------------
 # launch-delinea: SSH into the Delinea jump host and run "launch <id>"
 #
