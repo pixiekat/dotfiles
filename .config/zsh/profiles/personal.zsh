@@ -53,6 +53,9 @@ if [ -x "$(command -v jellyfin)" ]; then
 
     # ── Logs ────────────────────────────────────────────────────────
     if [ -d /var/log/jellyfin ]; then
+        # what to filter out of the logs when using `jellyfin-logs-no-refresh`
+        typeset -g JELLYFIN_LOG_NOISE='xmltv|refresh'
+
         # Open the logs folder in your file manager (Dolphin, on KDE)
         alias jellyfin-open-logs='xdg-open /var/log/jellyfin'
 
@@ -61,6 +64,9 @@ if [ -x "$(command -v jellyfin)" ]; then
 
         # Just get the most recent log file and the latest lines with less but no following
         alias jellyfin-less-logs='less "$(ls -t /var/log/jellyfin/*.log | head -n 1)"'
+
+        # Filter out the noise from the logs (xmltv refreshes, etc) and follow the rest
+        alias jellyfin-logs-no-refresh='jellyfin-less-logs | grep -viE "$JELLYFIN_LOG_NOISE"'
     fi
 
     # ── Service control ─────────────────────────────────────────────
