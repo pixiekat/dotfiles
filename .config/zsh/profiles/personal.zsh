@@ -58,6 +58,9 @@ if [ -x "$(command -v jellyfin)" ]; then
 
         # Follow the newest log; -F keeps following across rotation
         alias jellyfin-tail-logs='tail -F "$(ls -t /var/log/jellyfin/*.log | head -n 1)"'
+
+        # Just get the most recent log file and the latest lines with less but no following
+        alias jellyfin-less-logs='less "$(ls -t /var/log/jellyfin/*.log | head -n 1)"'
     fi
 
     # ── Service control ─────────────────────────────────────────────
