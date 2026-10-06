@@ -7,28 +7,49 @@ service_exists() {
     fi
 }
 
-# does btop exist?
+###
+# Btop aliases
+###
 if [ -x "$(command -v btop)" ]; then
     alias what-the-fuck-is-going-on='btop'
 fi
 
-# does pwd exist?
-# check to see if pwd is available
-if type pwd &>/dev/null; then
-    alias where-the-fuck-am-i='pwd'
-fi
+###
+# General finding your way around  a command line aliases
+###
 
-# does whoami exist?
-if [ -x "$(command -v whoami)" ]; then
-    alias who-the-fuck-am-i='whoami'
-fi
-
-# does finger exist?
+# where did you put that finger?
 if [ -x "$(command -v finger)" ]; then
     alias finger-me='finger $USER'
     alias who-the-fuck-is-that='finger'
     alias finger-me='finger $(whoami)'
     alias buy-a-girl-a-drink-first='finger-me'
+fi
+
+# makes pwd a little more fun
+if type pwd &>/dev/null; then
+    alias where-the-fuck-am-i='pwd'
+    alias ye-found-map='echo "Alas, you are here: $(pwd)"'
+fi
+
+# whoami but exisential
+if [ -x "$(command -v whoami)" ]; then
+    alias who-the-fuck-am-i='whoami'
+fi
+
+###
+# Claude aliases
+###
+if [[ -x "$(command -v claude)" && -d ~/.claude ]]; then
+
+    # edit your CLAUDE.md file
+    alias edit-claude='nano ~/.claude/CLAUDE.md'
+
+    # open your projects folder.
+    alias open-claude-projects='xdg-open ~/.claude/projects'
+
+    # browse your projects folder in the terminal
+    alias browse-claude-projects='cd ~/.claude/projects && ls -la'
 fi
 
 # we checkout filterlists to localhost so we can use it in our vpn-exclusions
