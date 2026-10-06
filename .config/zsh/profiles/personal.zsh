@@ -74,5 +74,34 @@ if [ -x "$(command -v jellyfin)" ]; then
 
 fi
 
+# does docker exist with a container named 'ersatztv'?
+if [ -x "$(command -v docker)" ] \
+    && docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q '^ersatztv$'; then
+    typeset -g ERSATZTV_DOCKER_CONTAINER_NAME="ersatztv"
+    typeset -g ERSATZTV_DOCKER_FOLDER="$HOME/webdev/projects/docker/ersatztv"
+
+    # tail the logs for the past 3 minutes
+    alias ersatztv-tail-logs='docker logs -f --since 3m "$ERSATZTV_DOCKER_CONTAINER_NAME" 2>&1'
+
+    # Restart the whole compose stack: down, then up -d
+    ersatztv-ups-and-downs() {
+        # The ( ) runs this in a SUBSHELL: the cd happens in a child process,
+        # so your terminal never leaves the directory you were in. No need
+        # to save and restore $PWD by hand.
+        (
+            cd "$ERSATZTV_DOCKER_FOLDER" || exit 1
+            docker compose down && docker compose up -d
+        ) || { echo "Something went wrong :(" >&2; return 1; }
+
+        echo "Done! Run 'ersatztv-tail-logs' to watch it come up."
+    }
+
+    # open the docker folder
+    alias ersatztv-open-folder='xdg-open "$ERSATZTV_DOCKER_FOLDER"'
+
+    # edit the docker-compose.yml file
+    alias ersatztv-edit-compose='${EDITOR:-nano} "$ERSATZTV_DOCKER_FOLDER/docker-compose.yml"'
+fi
+
 # Note: package-manager judgement moved to default.zsh so every profile
 # (work included >:3) gets roasted, not just this one.
