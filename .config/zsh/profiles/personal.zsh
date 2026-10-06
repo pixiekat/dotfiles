@@ -29,17 +29,26 @@ if [ -x "$(command -v jellyfin)" ]; then
     # even while Jellyfin is running (it understands WAL; plain cp doesn't).
     # Needs: sudo apt install sqlite3
     if [ -d /mnt/storage/katy ]; then
+        # Where Jellyfin DB backups live; change it here and everything follows
+        typeset -g JELLYFIN_BACKUP_DIR="/mnt/storage/katy"
+
         jellyfin-backup-db() {
             local db="/var/lib/jellyfin/data/jellyfin.db"
             local stamp="$(date +%Y%m%d-%H%M)"
 
             # ${1:+$1-} means: "if $1 is set and non-empty, insert '$1-', else nothing"
-            local dest="/mnt/storage/katy/jellyfin-db-${1:+$1-}${stamp}.db"
+            local dest="$JELLYFIN_BACKUP_DIR/jellyfin-db-${1:+$1-}${stamp}.db"
 
             sudo sqlite3 "$db" ".backup '$dest'" \
                 && echo "Backed up to $dest" \
                 || echo "Backup failed :(" >&2
         }
+
+        # just open up the backup folder
+        alias jellyfin-open-backups='xdg-open /mnt/storage/katy'
+
+        # List backups, newest first, with human-readable sizes
+        alias jellyfin-list-backups='ls -lht "$JELLYFIN_BACKUP_DIR"/jellyfin-db-*.db'
     fi
 
     # ── Logs ────────────────────────────────────────────────────────
