@@ -84,6 +84,7 @@ DOTFILES=(
     .bash_logout
     .bashrc
     .cache/oh-my-posh/themes/iranian-solidarity.omp.json
+    .claude/settings.json
     .config/btop/btop.conf
     .config/btop/themes/catppuccin/themes/catppuccin_frappe.theme
     .config/btop/themes/catppuccin/themes/catppuccin_latte.theme
@@ -168,7 +169,7 @@ if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
     DOTFILES+=(
         .gitconfig.local
         .claude/CLAUDE.md
-        .claude/settings.json
+        .claude/settings.local.json
         .ssh/config.d/personal
         .ssh/config.d/work
     )

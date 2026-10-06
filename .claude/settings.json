@@ -1,0 +1,8 @@
+{
+    "permissions": {
+        "defaultMode": "manual"
+    },
+    "theme": "dark",
+    "useAutoModeDuringPlan": false,
+    "agentPushNotifEnabled": false
+}
