@@ -98,12 +98,14 @@ DOTFILES=(
     .config/composer/config.json
     .config/composer/composer.json
     .config/hyfetch.json
+    .config/zsh/profiles/shared.zsh
     .config/zsh/profiles/personal.zsh
     .config/zsh/profiles/work.zsh
     .config/zsh/profiles/default.zsh
     .functions
     .gitconfig
     .inputrc
+    .local/bin/split-show.sh
     .local/bin/backup-databases.sh
     .local/bin/backup-immich.sh
     .local/bin/backup-home-to-storagebox.sh
