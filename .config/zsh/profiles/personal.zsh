@@ -96,6 +96,9 @@ if [ -x "$(command -v docker)" ] \
         echo "Done! Run 'ersatztv-tail-logs' to watch it come up."
     }
 
+    # bash into the ersatztv container (for debugging, etc)
+    alias ersatztv-bash='docker exec -it "$ERSATZTV_DOCKER_CONTAINER_NAME" sh -c "command -v bash >/dev/null && exec bash || exec sh"'
+
     # open the docker folder
     alias ersatztv-open-folder='xdg-open "$ERSATZTV_DOCKER_FOLDER"'
 
