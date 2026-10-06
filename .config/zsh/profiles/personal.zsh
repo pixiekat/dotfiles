@@ -10,12 +10,34 @@ if [ -x "$(command -v hyfetch)" ]; then
     alias baby-its-klaine-outside='hyfetch -p rainbow'
 fi
 
-# does jellyfin exist?
+###
+# Jellyfin aliases
+###
 if [ -x "$(command -v jellyfin)" ]; then
-    alias jellystart='sudo systemctl start jellyfin'
-    alias jellystop='sudo systemctl stop jellyfin'
-    alias jellyrestart='sudo systemctl restart jellyfin'
-    alias jellystatus='sudo systemctl status jellyfin'
+
+    # Backup the database
+    if [ -d /mnt/storage/katy ]; then
+        alias jellyfin-backup-db='sudo cp -p /var/lib/jellyfin/data/jellyfin.db /mnt/storage/katy/jellyfin-db-GOOD-511eps-$(date +%Y%m%d-%H%M).db'
+    fi
+
+    # Open the logs directory
+    if [ -d /var/log/jellyfin ]; then
+        alias jellyfin-open-logs='xdg-open /var/log/jellyfin'
+    fi
+
+    # Tail the most recent log file
+    if [ -d /var/log/jellyfin ]; then
+        alias jellyfin-tail-logs='tail -f $(ls -t /var/log/jellyfin/jellyfin*.log | head -n 1)'
+    fi
+
+    # Start, stop, and restart the Jellyfin service
+    if service_exists jellyfin; then
+        alias jellyfin-start='sudo systemctl start jellyfin'
+        alias jellyfin-stop='sudo systemctl stop jellyfin'
+        alias jellyfin-restart='sudo systemctl restart jellyfin'
+        alias jellyfin-status='sudo systemctl status jellyfin'
+    fi
+
 fi
 
 # Note: package-manager judgement moved to default.zsh so every profile
