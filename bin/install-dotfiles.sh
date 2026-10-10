@@ -321,8 +321,12 @@ for file in "${DOTFILES[@]}"; do
         if [[ "$IS_DRY_RUN" == "True" ]]; then
             info "[DRY RUN] Would mark executable: $src"
         else
-            chmod u+x "$src"
-            success "Marked executable: $src"
+            if [[ ! -x "$src" ]]; then
+                chmod u+x "$src"
+                success "Marked executable: $src"
+            else
+                info "Already executable: $src"
+            fi
         fi
     fi
 
