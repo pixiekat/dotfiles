@@ -129,6 +129,33 @@ if [ -x "$(command -v apt)" ]; then
 
     # alias to show why a package is installed, but using aptitude instead of apt
     alias who-the-fuck-asked-me-to-install-this='aptitude why'
+
+    # "Did I do that?" - was this package installed manually by ME,
+    # or dragged in automatically as a dependency?
+    #   manual (you chose it)       -> Stefan Urquelle, welcome
+    #   automatic (it just showed up) -> Steve, knocking again
+    # usage: did-i-fucking-do-that vlc
+    did-i-fucking-do-that() {
+        # Bail out with usage help if no package name was given
+        if [[ -z "$1" ]]; then
+            echo "usage: did-i-fucking-do-that <package>"
+            return 1
+        fi
+
+        # Not installed at all? Nobody's at the door.
+        if ! dpkg -s -- "$1" &>/dev/null; then
+            echo "$1 isn't even installed. Nobody's at the door. 🚪"
+            return 1
+        fi
+
+        # apt-mark showmanual lists packages YOU installed on purpose;
+        # grep -qx does a quiet, exact whole-line match
+        if apt-mark showmanual | grep -qx -- "$1"; then
+            echo "Oh... it's you, Stefan Urquelle. 😍  ($1 was installed manually)"
+        else
+            echo "Steve, I don't have time for your shit.  ($1 was pulled in as a dependency)"
+        fi
+    }
 fi
 
 #upower aliases
