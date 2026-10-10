@@ -42,3 +42,49 @@ else
         print -u2 "WSL? linux in a windows trenchcoat. we see you."
     fi
 fi
+
+# Trash aliases
+typeset -g TRASH_DIR="/home/$USER/.local/share/Trash"
+if [ -x "$(command -v gio)" ]; then
+    alias trash-empty="gio trash --empty"
+    alias trash-picking="gio trash --list"
+else
+    if [ -d "$TRASH_DIR" ]; then
+        alias trash-empty="rm -rf $TRASH_DIR/*"
+        alias trash-picking="find $TRASH_DIR -type f"
+    fi
+fi
+
+# ── bin-it <file>... ────────────────────────────────────────────────
+# Move files to the trash instead of deleting them.
+# Tries, in order: gio (GNOME/KDE-friendly), trash-put (trash-cli),
+# then a plain mv into $TRASH_DIR as a last resort.
+# (rm is still there if you really mean it.)
+bin-it() {
+    # No arguments? Show usage instead of doing something odd.
+    if (( $# == 0 )); then
+        echo "Usage: bin-it <file>..." >&2
+        return 1
+    fi
+
+    if [ -x "$(command -v gio)" ]; then
+        gio trash -- "$@"
+    elif [ -x "$(command -v trash-put)" ]; then
+        trash-put -- "$@"
+    elif [ -d "$TRASH_DIR/files" ]; then
+        # -n = never overwrite something already in the trash.
+        # Note: this path doesn't record the original location.
+        mv -n -- "$@" "$TRASH_DIR/files/"
+    else
+        echo "No trash method found. Nothing was moved." >&2
+        return 1
+    fi
+
+    # $? is the exit status of whichever branch ran above.
+    if (( $? == 0 )); then
+        echo "Moved $* to trash. Use 'trash-empty' to empty it, or 'trash-picking' to see what's in it."
+    else
+        echo "Something went wrong; check the files above :(" >&2
+        return 1
+    fi
+}
