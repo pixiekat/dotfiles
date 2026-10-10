@@ -9,7 +9,7 @@ set indicator
 set linenumbers
 #set matchbrackets
 set minibar
-set mouse
+#set mouse
 set nohelp
 set positionlog
 set smarthome
