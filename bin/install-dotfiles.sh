@@ -373,6 +373,24 @@ fi
 
 # ---------------------------------------------------------------------------
 
+# ------------------------------------------------------------------
+# Post-run cleanup: remove this run's backup dir if nothing was backed up.
+#
+# find -mindepth 1 -print -quit prints the FIRST entry inside the dir and
+# stops, so an empty result means the dir is empty (fast, no full listing).
+# rmdir only ever removes EMPTY directories, so even if the check were
+# wrong, real backups can't be deleted by this.
+# ------------------------------------------------------------------
+if [[ -d "$BACKUP_DIR" && -z "$(find "$BACKUP_DIR" -mindepth 1 -print -quit)" ]]; then
+    if [[ "$IS_DRY_RUN" == "True" ]]; then
+        info "[DRY RUN] Would remove empty backup dir: $BACKUP_DIR"
+    else
+        rmdir "$BACKUP_DIR"
+        info "Nothing needed backing up; removed empty dir: $BACKUP_DIR"
+    fi
+else
+    info "Backups are in: $BACKUP_DIR"
+fi
 
 # -- Done -------------------------------------------------------------------
 
@@ -382,7 +400,7 @@ if [[ "$IS_DRY_RUN" == "True" ]]; then
     info "DRY RUN complete. No changes were made."
 else
     info "Installation complete."
-    info "Backups (if any) are in: $BACKUP_DIR"
+    # (backup location is reported by the cleanup step above)
     info "Review your shell with: source ~/.zshrc or source ~/.bashrc"
 fi
 echo ""
