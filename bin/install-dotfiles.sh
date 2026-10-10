@@ -203,8 +203,19 @@ for file in "${DOTFILES[@]}"; do
         continue
     fi
 
+    # ------------------------------------------------------------------
+    # Already-linked check: done EARLY, before anything touches $dest.
+    # We only record the answer here; the per-file hooks below still need
+    # to run (ssh perms, nano dirs), so we can't 'continue' yet.
+    # readlink -f resolves both sides to absolute real paths so they compare cleanly.
+    # ------------------------------------------------------------------
+    already_linked="False"
+    if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
+        already_linked="True"
+    fi
+
     # If something already exists at the destination, back it up
-    if [[ -e "$dest" || -L "$dest" ]]; then
+    if [[ "$already_linked" == "False" && ( -e "$dest" || -L "$dest" ) ]]; then
         if [[ "$IS_DRY_RUN" == "True" ]]; then
             info "[DRY RUN] Would back up existing: $dest to $BACKUP_DIR/$file"
         else
@@ -313,6 +324,12 @@ for file in "${DOTFILES[@]}"; do
             chmod u+x "$src"
             success "Marked executable: $src"
         fi
+    fi
+
+    # Now it's safe to skip: hooks and perms have run, and the link is already correct
+    if [[ "$already_linked" == "True" ]]; then
+        info "Already linked, skipping: $dest"
+        continue
     fi
 
     # Create the symlink
