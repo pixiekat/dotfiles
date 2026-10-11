@@ -538,7 +538,14 @@ if [ -x "$(command -v aptitude)" ]; then
 fi
 
 # --- ModSecurity audit log helpers ------------------------------------------
-_MODSEC_AUDIT_LOG="/var/log/apache2/modsec/modsec_audit.log"
+if [ -f "/var/log/apache2/modsec/modsec_audit.log" ]; then
+    _MODSEC_AUDIT_LOG="/var/log/apache2/modsec/modsec_audit.log"
+elif [ -f "/var/log/apache2/modsec_audit.log" ]; then
+    _MODSEC_AUDIT_LOG="/var/log/apache2/modsec_audit.log"
+else
+    _MODSEC_AUDIT_LOG=""
+fi
+#_MODSEC_AUDIT_LOG="/var/log/apache2/modsec/modsec_audit.log"
 
 # Only define these on machines that actually have the audit log.
 if [[ -f "$_MODSEC_AUDIT_LOG" ]]; then
