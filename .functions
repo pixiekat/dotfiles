@@ -85,36 +85,38 @@ pixiekat-doctrine-force() {
   $php_cmd bin/console doctrine:schema:update --force
 }
 
-# docker compose functions
-pixiekat-dcup() {
-  local dir
-  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
-  docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml up -d
-}
+if [ -x "$(command -v docker)" ]; then
+    # docker compose functions
+    pixiekat-dcup() {
+    local dir
+    dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
+    docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml up -d
+    }
 
-pixiekat-dcdown() {
-  local dir
-  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
-  docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml down
-}
+    pixiekat-dcdown() {
+    local dir
+    dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
+    docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml down
+    }
 
-pixiekat-dcstop() {
-  local dir
-  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
-  docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml stop
-}
+    pixiekat-dcstop() {
+    local dir
+    dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
+    docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml stop
+    }
 
-pixiekat-dcstart() {
-  local dir
-  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
-  docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml start
-}
+    pixiekat-dcstart() {
+    local dir
+    dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
+    docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml start
+    }
 
-pixiekat-dcpull() {
-  local dir
-  dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
-  docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml pull
-}
+    pixiekat-dcpull() {
+    local dir
+    dir=$(_pixiekat_dc_resolve_dir "$1") || return 1
+    docker compose -f ~/webdev/projects/docker/$dir/docker-compose.yml pull
+    }
+fi
 
 # grabs a youtube video by id at a given resolution (default 480p)
 # see below for updated version; kept for archival purposes
@@ -161,86 +163,88 @@ pixiekat-dcpull() {
 #  yt-dlp -f "${vfmt}+${afmt}" --write-subs --cookies-from-browser vivaldi --no-write-auto-subs --sub-lang "en.*" "$url"
 #}
 
-# pixiekat-ytgrab — grab a youtube video by id, capped at a sane SD resolution.
-#
-# why 480 default: NTSC broadcast was ~480 visible lines, so for archival /
-# broadcast-sourced material the source is usually <=480 anyway. capping here
-# means we take the best *real* stream at or under our ceiling instead of
-# downloading someone's baked-in upscale (bigger files, fake detail).
-#
-# usage: pixiekat-ytgrab <youtube_id> [max_height]
-#        pixiekat-ytgrab dQw4w9WgXcQ        # caps at 480
-#        pixiekat-ytgrab dQw4w9WgXcQ 360    # caps at 360
-pixiekat-ytgrab() {
-  local id="$1"
-  local res="${2:-480}"   # default ceiling = 480; override as 2nd arg
+if [ -x "$(command -v yt-dlp)" ]; then
+    # pixiekat-ytgrab — grab a youtube video by id, capped at a sane SD resolution.
+    #
+    # why 480 default: NTSC broadcast was ~480 visible lines, so for archival /
+    # broadcast-sourced material the source is usually <=480 anyway. capping here
+    # means we take the best *real* stream at or under our ceiling instead of
+    # downloading someone's baked-in upscale (bigger files, fake detail).
+    #
+    # usage: pixiekat-ytgrab <youtube_id> [max_height]
+    #        pixiekat-ytgrab dQw4w9WgXcQ        # caps at 480
+    #        pixiekat-ytgrab dQw4w9WgXcQ 360    # caps at 360
+    pixiekat-ytgrab() {
+    local id="$1"
+    local res="${2:-480}"   # default ceiling = 480; override as 2nd arg
 
-  # --- help / usage -------------------------------------------------------
-  if [[ "$id" == "--help" || "$id" == "--usage" ]]; then
-    echo "Usage: pixiekat-ytgrab <youtube_id> [max_height]"
-    echo "Example: pixiekat-ytgrab dQw4w9WgXcQ 480"
-    echo ""
-    echo "Env overrides:"
-    echo "  YTGRAB_BROWSER   cookies-from-browser source (default: vivaldi)"
-    echo "  YTGRAB_OUTDIR    output directory (default: current dir)"
-    echo "  YTGRAB_ARCHIVE   download-archive file (default: ~/.local/share/pixiekat/ytgrab-archive.txt)"
-    return 0
-  fi
+    # --- help / usage -------------------------------------------------------
+    if [[ "$id" == "--help" || "$id" == "--usage" ]]; then
+        echo "Usage: pixiekat-ytgrab <youtube_id> [max_height]"
+        echo "Example: pixiekat-ytgrab dQw4w9WgXcQ 480"
+        echo ""
+        echo "Env overrides:"
+        echo "  YTGRAB_BROWSER   cookies-from-browser source (default: vivaldi)"
+        echo "  YTGRAB_OUTDIR    output directory (default: current dir)"
+        echo "  YTGRAB_ARCHIVE   download-archive file (default: ~/.local/share/pixiekat/ytgrab-archive.txt)"
+        return 0
+    fi
 
-  # --- bail if no id ------------------------------------------------------
-  if [ -z "$id" ]; then
-    echo "Usage: pixiekat-ytgrab <youtube_id> [max_height]" >&2
-    return 1
-  fi
+    # --- bail if no id ------------------------------------------------------
+    if [ -z "$id" ]; then
+        echo "Usage: pixiekat-ytgrab <youtube_id> [max_height]" >&2
+        return 1
+    fi
 
-  local url="https://www.youtube.com/watch?v=$id"
+    local url="https://www.youtube.com/watch?v=$id"
 
-  # --- configurable bits (env vars, with defaults) ------------------------
-  # which browser to pull cookies from. you're on firefox nightly now, so you
-  # may want YTGRAB_BROWSER=firefox — left as vivaldi to match your original.
-  local browser="${YTGRAB_BROWSER:-vivaldi}"
+    # --- configurable bits (env vars, with defaults) ------------------------
+    # which browser to pull cookies from. you're on firefox nightly now, so you
+    # may want YTGRAB_BROWSER=firefox — left as vivaldi to match your original.
+    local browser="${YTGRAB_BROWSER:-vivaldi}"
 
-  # where files land. default to $PWD so single grabs stay where you are,
-  # but you can point this at your ISO-8601 tree for batch runs.
-  local outdir="${YTGRAB_OUTDIR:-.}"
+    # where files land. default to $PWD so single grabs stay where you are,
+    # but you can point this at your ISO-8601 tree for batch runs.
+    local outdir="${YTGRAB_OUTDIR:-.}"
 
-  # download-archive: yt-dlp records every grabbed id here and SKIPS them on
-  # re-runs. this is the "never re-fetch what i already have" instinct, same
-  # as your seedbox/backup discipline. safe to share across all your grabs.
-  local archive="${YTGRAB_ARCHIVE:-$HOME/.local/share/pixiekat/ytgrab-archive.txt}"
-  mkdir -p "$(dirname "$archive")"   # make sure the dir exists first
+    # download-archive: yt-dlp records every grabbed id here and SKIPS them on
+    # re-runs. this is the "never re-fetch what i already have" instinct, same
+    # as your seedbox/backup discipline. safe to share across all your grabs.
+    local archive="${YTGRAB_ARCHIVE:-$HOME/.local/share/pixiekat/ytgrab-archive.txt}"
+    mkdir -p "$(dirname "$archive")"   # make sure the dir exists first
 
-  # --- format selection (replaces the old -F + awk scraping) --------------
-  # yt-dlp's own selector language does what the awk did, but robustly:
-  #   bv*[height<=N][ext=mp4]+ba[ext=m4a]  ideal: mp4 video <=ceiling + m4a audio
-  #   /bv*[height<=N]+ba                   fallback: any video <=ceiling + any audio
-  #   /b[height<=N]                        fallback: best PRE-MUXED stream <=ceiling
-  #   /b                                   last resort: best anything (rare/old uploads)
-  # the '/' is yt-dlp's "try-left-then-right" operator — graceful degradation
-  # expressed as a format string. [height<=480] is ANCHORED so 480 can never
-  # accidentally match inside "1080" the way the old substring regex could.
-  #local fmt="bv*[height<=${res}][ext=mp4]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
-  local fmt="bv*[height<=${res}][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
+    # --- format selection (replaces the old -F + awk scraping) --------------
+    # yt-dlp's own selector language does what the awk did, but robustly:
+    #   bv*[height<=N][ext=mp4]+ba[ext=m4a]  ideal: mp4 video <=ceiling + m4a audio
+    #   /bv*[height<=N]+ba                   fallback: any video <=ceiling + any audio
+    #   /b[height<=N]                        fallback: best PRE-MUXED stream <=ceiling
+    #   /b                                   last resort: best anything (rare/old uploads)
+    # the '/' is yt-dlp's "try-left-then-right" operator — graceful degradation
+    # expressed as a format string. [height<=480] is ANCHORED so 480 can never
+    # accidentally match inside "1080" the way the old substring regex could.
+    #local fmt="bv*[height<=${res}][ext=mp4]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
+    local fmt="bv*[height<=${res}][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=${res}]+ba/b[height<=${res}]/b"
 
-  # --- the grab -----------------------------------------------------------
-  # throttle flags keep us a polite scraper (essential once you loop over many
-  # ids): jittered sleeps look less robotic than a fixed delay.
-  #   --sleep-requests   pause between metadata/API calls
-  #   --sleep-interval / --max-sleep-interval   RANDOM pause between downloads
-  # sidecars (--write-info-json / --write-thumbnail) preserve the uploader's
-  # description + poster frame — for archive uploads the real date/context
-  # often lives in that description, so it's worth keeping their cataloging.
-  yt-dlp \
-    -f "$fmt" \
-    --cookies-from-browser "$browser" \
-    --download-archive "$archive" \
-    --write-subs --no-write-auto-subs --sub-lang "en.*" \
-    --write-info-json --write-thumbnail \
-    --sleep-requests 1.5 \
-    --sleep-interval 5 --max-sleep-interval 15 \
-    -o "$outdir/%(title)s [%(upload_date>%Y-%m-%d)s - %(id)s].%(ext)s" \
-    "$url"
-}
+    # --- the grab -----------------------------------------------------------
+    # throttle flags keep us a polite scraper (essential once you loop over many
+    # ids): jittered sleeps look less robotic than a fixed delay.
+    #   --sleep-requests   pause between metadata/API calls
+    #   --sleep-interval / --max-sleep-interval   RANDOM pause between downloads
+    # sidecars (--write-info-json / --write-thumbnail) preserve the uploader's
+    # description + poster frame — for archive uploads the real date/context
+    # often lives in that description, so it's worth keeping their cataloging.
+    yt-dlp \
+        -f "$fmt" \
+        --cookies-from-browser "$browser" \
+        --download-archive "$archive" \
+        --write-subs --no-write-auto-subs --sub-lang "en.*" \
+        --write-info-json --write-thumbnail \
+        --sleep-requests 1.5 \
+        --sleep-interval 5 --max-sleep-interval 15 \
+        -o "$outdir/%(title)s [%(upload_date>%Y-%m-%d)s - %(id)s].%(ext)s" \
+        "$url"
+    }
+fi
 
 # dotfiles installation and updates
 pixiekat-dotfiles-init() {
@@ -452,37 +456,42 @@ winget() {
     done
 }
 
-pixiekat-claude-install() {
-    if [ -x "$(command -v claude)" ]; then
-        echo "Claude is already installed, aborting!"
-        return 1
-    fi
-    echo "Installing Claude CLI..."
-    curl -fsSL https://claude.ai/install.sh | bash
-}
+if [ -x "$(command -v claude)" ]; then
 
-pixiekat-claude-uninstall() {
-    if [ ! -x "$(command -v claude)" ]; then
-        echo "Claude CLI is not installed, aborting!"
-        return 1
-    fi
-    echo "Uninstalling Claude CLI..."
-    rm -f ~/.local/bin/claude
-    rm -rf ~/.local/share/claude
-    rm -rf ~/.claude
+    pixiekat-claude-install() {
+        if [ -x "$(command -v claude)" ]; then
+            echo "Claude is already installed, aborting!"
+            return 1
+        fi
+        echo "Installing Claude CLI..."
+        curl -fsSL https://claude.ai/install.sh | bash
+    }
 
-    if [ -f ~/.claude.json ]; then
-        rm ~/.claude.json
-    fi
-}
+    pixiekat-claude-uninstall() {
+        if [ ! -x "$(command -v claude)" ]; then
+            echo "Claude CLI is not installed, aborting!"
+            return 1
+        fi
+        echo "Uninstalling Claude CLI..."
+        rm -f ~/.local/bin/claude
+        rm -rf ~/.local/share/claude
+        rm -rf ~/.claude
+
+        if [ -f ~/.claude.json ]; then
+            rm ~/.claude.json
+        fi
+    }
+fi
 
 # Clone like normal, then set fileMode false in the new repo.
 # Usage: gclone <url> [folder]
-gclone() {
-    git clone "$@" || return            # stop if the clone failed
-    local dir="${2:-$(basename "$1" .git)}"   # folder name: 2nd arg, or derived from the URL
-    git -C "$dir" config core.fileMode false && echo "fileMode=false set in $dir"
-}
+if [ -x "$(command -v git)" ]; then
+    gclone() {
+        git clone "$@" || return            # stop if the clone failed
+        local dir="${2:-$(basename "$1" .git)}"   # folder name: 2nd arg, or derived from the URL
+        git -C "$dir" config core.fileMode false && echo "fileMode=false set in $dir"
+    }
+fi
 
 # ------------------------------------------------------------------
 # launch-delinea: SSH into the Delinea jump host and run "launch <id>"
