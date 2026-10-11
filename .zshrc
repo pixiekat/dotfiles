@@ -80,6 +80,7 @@ if [[ -z "$TERM_PROFILE" ]]; then
     case "$HOST" in                        # $HOST is a zsh builtin -- no subshell
         debian-8gb-hel1-1)  TERM_PROFILE="work" ;;   # dev server: docker, git, drush
         ip-172-31-0-248)  TERM_PROFILE="work" ;;   # AWS dev server: docker, git, drush
+        dci-prod)  TERM_PROFILE="work" ;;   # AWS prod server: docker, git, drush
         naelaedra|tyrande)  TERM_PROFILE="katy" ;;
         *)                  TERM_PROFILE="default" ;;
     esac
@@ -121,6 +122,7 @@ case "$TERM_PROFILE" in
     case "$HOST" in                        # distinct prompt per work machine
         debian-8gb-hel1-1)  theme_name="darkblood" ;;      # Hetzner = "you're on prod, think first"
         ip-172-31-0-248)  theme_name="cloud-context" ;;      # work aws so make it look slightly different from Hetzner
+        dci-prod)  theme_name="cloud-context" ;;      # work aws so make it look slightly different from Hetzner
         *)                  theme_name="clean-detailed" ;; # local work terminals
     esac
     ;;
