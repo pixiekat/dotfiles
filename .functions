@@ -21,6 +21,18 @@ _pixiekat_resolve_dotfiles_dir() {
   echo "$dotfiles_dir"
 }
 
+_pixiekat_resolve_dotfiles_private_dir() {
+  # return the path to the dotfiles-private directory
+  # if ~/webdev/projects exists then we assume we're on a local machine and want to clone to ~/webdev/projects/codeberg/pixiekat/dotfiles-private to keep it separate from the home directory and avoid accidentally messing with it, but if that path doesn't exist we assume we're on the server and clone directly to ~/dotfiles-private
+  if [ -d "$HOME/webdev/projects" ]; then
+    dotfiles_private_dir="$HOME/webdev/projects/codeberg/pixiekat/dotfiles-private"
+  else
+    dotfiles_private_dir="$HOME/dotfiles-private"
+  fi
+  echo "Resolved dotfiles-private directory: $dotfiles_private_dir" >&2
+  echo "$dotfiles_private_dir"
+}
+
 # helper function to resolve php version and doctrine command for the doctrine aliases
 _pixiekat_doctrine_preflight() {
   # if --help or --usage is passed, show usage and exit
@@ -270,7 +282,15 @@ pixiekat-dotfiles-update() {
   local current_dir=$(pwd)
 
   cd "$(_pixiekat_resolve_dotfiles_dir)"
+  echo "Updating dotfiles..."
   git pull
+
+  local dotfiles_private_dir="$(_pixiekat_resolve_dotfiles_private_dir)"
+  if [ -d "$dotfiles_private_dir" ]; then
+    cd "$dotfiles_private_dir"
+    echo "Updating dotfiles-private..."
+    git pull
+  fi
 
   # return to the original directory
   cd "$current_dir"
