@@ -1,0 +1,60 @@
+/* ==========================================================
+  Comic emails (Calvin & Hobbes, Garfield, etc.)
+  ----------------------------------------------------------
+  Fingerprint: the strip image always comes from
+  featureassets.gocomics.com, which their other newsletters
+  (news, puzzles) don't share.
+  ========================================================== */
+
+body:has(img[src*="featureassets.gocomics.com"]) {
+
+  /* 
+    Scales the whole email: text, strips, buttons.
+    Each Ctrl++ step is ~10%, so your usual "+++" ≈ 1.3.
+    Bump to 1.5 if you want it chonkier. */
+  zoom: 1.3;
+}
+
+/* 
+  Widen the 600px column so the strips (which are set to
+  width="100%") grow to fill the space.
+  !important is needed because the email uses inline
+  style="" attributes, which normally beat stylesheet rules. */
+body:has(img[src*="featureassets.gocomics.com"]) table[style*="max-width: 600px"] {
+  max-width: 1000px !important;   /* tweak to taste */
+}
+
+/*
+  1. Outer + inner 640px tables.
+  They use the HTML attribute width="640", so we override
+  width itself. Setting width:100% fills the pane, and
+  max-width keeps it from going absurdly wide. */
+body:has(img[src*="arcamax.com/newspics"]) table.container,
+body:has(img[src*="arcamax.com/newspics"]) table.content {
+  width: 100% !important;
+  max-width: 1000px !important;   /* tweak to taste */
+}
+
+/* 
+  2. The <p> wrapping the strip has an inline
+  max-width:600px, so we lift it. */
+body:has(img[src*="arcamax.com/newspics"]) .comic-wrapper p {
+  max-width: none !important;
+}
+
+/* 
+  3. The strip image itself: fill the available width,
+  and keep the proportions with height:auto. */
+body:has(img[src*="arcamax.com/newspics"]) a.comic-pic img {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* 
+  4. ArcaMax ad blocks all carry data-lt-version="3.0.0"
+  (it's from their ad-serving system, LiveIntent).
+  Hiding them removes the broken placeholder images
+  and the empty space they take up. */
+body:has(img[src*="arcamax.com/newspics"]) table[data-lt-version] {
+  display: none !important;
+}
