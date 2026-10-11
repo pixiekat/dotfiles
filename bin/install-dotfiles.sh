@@ -172,6 +172,10 @@ if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
     DOTFILES+=(
         .gitconfig.local
         .claude/CLAUDE.md
+        # A whole DIRECTORY, not a single file: ~/.claude/context becomes one
+        # symlink to the folder, so new files added to context/ show up without
+        # touching this list. CLAUDE.md pulls them in with @~/.claude/context/...
+        .claude/context
         .claude/settings.local.json
         .ssh/config.d/personal
         .ssh/config.d/work
