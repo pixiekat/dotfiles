@@ -64,7 +64,9 @@
     "chat.viewSessions.orientation": "stacked",
     "files.associations": {
         ".profile": "shellscript",
-        "*.sh": "shellscript"
+        "*.sh": "shellscript",
+        ".aliases": "shellscript",
+        ".functions": "shellscript",
     },
     "github.copilot.enable": {
         "*": true
