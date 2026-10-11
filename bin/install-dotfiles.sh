@@ -325,7 +325,7 @@ for file in "${DOTFILES[@]}"; do
                 info "Found thunderbird; proceeding with linking Thunderbird config files."
             else
                 info "Thunderbird is not installed; skipping linking Thunderbird config files."
-                already_linked="True"
+                skip_symlink="True"
             fi
             ;;
 
@@ -336,7 +336,7 @@ for file in "${DOTFILES[@]}"; do
                 info "Found claude; proceeding with linking Claude config files."
             else
                 info "Claude is not installed; skipping linking Claude config files."
-                already_linked="True"
+                skip_symlink="True"
             fi
             ;;
 
