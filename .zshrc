@@ -79,6 +79,7 @@ ZSH_THEME="robbyrussell"
 if [[ -z "$TERM_PROFILE" ]]; then
     case "$HOST" in                        # $HOST is a zsh builtin -- no subshell
         debian-8gb-hel1-1)  TERM_PROFILE="work" ;;   # dev server: docker, git, drush
+        ip-172-31-0-248)  TERM_PROFILE="work" ;;   # AWS dev server: docker, git, drush
         naelaedra|tyrande)  TERM_PROFILE="katy" ;;
         *)                  TERM_PROFILE="default" ;;
     esac
