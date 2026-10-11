@@ -217,6 +217,7 @@ for file in "${DOTFILES[@]}"; do
     # readlink -f resolves both sides to absolute real paths so they compare cleanly.
     # ------------------------------------------------------------------
     already_linked="False"
+    skip_symlink="False"
     if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
         already_linked="True"
     fi
@@ -317,6 +318,28 @@ for file in "${DOTFILES[@]}"; do
             fi
             ;;
 
+        # thunderbird; make sure the thunderbird-bin package is installed;
+        *.thunderbird*)
+            info "Ensuring thunderbird-bin is installed"
+            if [[ -x "$(command -v thunderbird)" ]]; then
+                info "Found thunderbird; proceeding with linking Thunderbird config files."
+            else
+                info "Thunderbird is not installed; skipping linking Thunderbird config files."
+                already_linked="True"
+            fi
+            ;;
+
+        # claude: make sure claude is installed; if not, skip linking claude config files
+        *.claude*)
+            info "Ensuring claude is installed"
+            if [[ -x "$(command -v claude)" ]]; then
+                info "Found claude; proceeding with linking Claude config files."
+            else
+                info "Claude is not installed; skipping linking Claude config files."
+                already_linked="True"
+            fi
+            ;;
+
     esac
 
     # ------------------------------------------------------------------
@@ -340,6 +363,11 @@ for file in "${DOTFILES[@]}"; do
     # Now it's safe to skip: hooks and perms have run, and the link is already correct
     if [[ "$already_linked" == "True" ]]; then
         info "Already linked, skipping: $dest"
+        continue
+    fi
+
+    if [[ "$skip_symlink" == "True" ]]; then
+        info "Skipping symlink for: $dest"
         continue
     fi
 
