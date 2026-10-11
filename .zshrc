@@ -120,6 +120,7 @@ case "$TERM_PROFILE" in
     plugins=("${default_plugins[@]}" "${work_plugins[@]}")
     case "$HOST" in                        # distinct prompt per work machine
         debian-8gb-hel1-1)  theme_name="darkblood" ;;      # Hetzner = "you're on prod, think first"
+        ip-172-31-0-248)  theme_name="cloud-context" ;;      # work aws so make it look slightly different from Hetzner
         *)                  theme_name="clean-detailed" ;; # local work terminals
     esac
     ;;
