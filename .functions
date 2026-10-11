@@ -536,3 +536,50 @@ if [ -x "$(command -v aptitude)" ]; then
         done
     }
 fi
+
+# --- ModSecurity audit log helpers ------------------------------------------
+_MODSEC_AUDIT_LOG="/var/log/apache2/modsec_audit.log"
+
+# Only define these on machines that actually have the audit log.
+if [[ -f "$_MODSEC_AUDIT_LOG" ]]; then
+
+    # Internal helper: print every complete audit entry for one client IP.
+    #
+    # Each entry starts with a boundary line like:  --4a9a162a-A--
+    # The line after it is the A section:
+    #   [11/Oct/2026:02:46:17.195103 +0100] <unique_id> <client_ip> <port> <server_ip> <port>
+    # Split on whitespace, the client IP is field $4. We compare it as an
+    # exact STRING, so dots aren't wildcards and 1.2.3.4 never matches 1.2.3.44.
+    # sudo because the audit log is normally readable by root only.
+    _modsec-entries-for-ip() {
+        sudo awk -v ip="$1" '
+            /^--[0-9a-f]+-A--$/ { keep = 0; expect_a = 1; boundary = $0; next }
+            expect_a            { expect_a = 0; if ($4 == ip) { keep = 1; print boundary } }
+            keep                { print }
+        ' "$_MODSEC_AUDIT_LOG"
+    }
+
+    # What did a given IP request?
+    modsec-requests-by-ip() {
+        local ip="$1"
+        if [[ -z "$ip" ]]; then
+            echo "usage: modsec-requests-by-ip <ip>" >&2
+            return 1
+        fi
+        # Request lines look like "GET /path HTTP/2.0". Matching any
+        # uppercase method keeps PATCH, CONNECT, PROPFIND, etc. too.
+        _modsec-entries-for-ip "$ip" | grep -E '^[A-Z]+ [^ ]+ HTTP/[0-9.]+$'
+    }
+
+    # Which rules did a given IP trip, most frequent first?
+    modsec-rules-by-ip() {
+        local ip="$1"
+        if [[ -z "$ip" ]]; then
+            echo "usage: modsec-rules-by-ip <ip>" >&2
+            return 1
+        fi
+        # Rule IDs appear in the H section as [id "920210"].
+        # \K drops the [id " prefix so only the number is printed.
+        _modsec-entries-for-ip "$ip" | grep -oP '\[id "\K\d+' | sort | uniq -c | sort -rn
+    }
+fi
