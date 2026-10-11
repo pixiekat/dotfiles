@@ -577,6 +577,6 @@ if [[ -f "$_MODSEC_AUDIT_LOG" ]]; then
         fi
         # Rule IDs appear in the H section as [id "920210"].
         # \K drops the [id " prefix so only the number is printed.
-        _modsec-entries-for-ip "$ip" | grep -oP '\[id "\K\d+' | sort | uniq -c | sort -rn
+        _modsec-entries-for-ip "$ip" | grep '^Message:' | grep -oP '\[id "\K\d+' | sort | uniq -c | sort -rn
     }
 fi
