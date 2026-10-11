@@ -548,7 +548,7 @@ if [[ -f "$_MODSEC_AUDIT_LOG" ]]; then
     # zcat -f decompresses .gz files and passes plain files through unchanged.
     # Rotated files are read oldest-first, so output stays in time order.
     _modsec-entries-for-ip() {
-        sudo bash -c 'zcat -f $(ls -1tr '"$_MODSEC_AUDIT_LOG"'*)' \
+        sudo bash -c 'zcat -f $(ls -1tr /var/log/apache2/modsec_audit.log* '"$_MODSEC_AUDIT_LOG"'* 2>/dev/null)' \
         | awk -v ip="$1" '
             /^--[0-9a-f]+-A--$/ { keep = 0; expect_a = 1; boundary = $0; next }
             expect_a            { expect_a = 0; if ($4 == ip) { keep = 1; print boundary } }
