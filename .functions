@@ -456,40 +456,75 @@ winget() {
     done
 }
 
-# if claude isn't installed, add a function to install it
-if [ ! -x "$(command -v claude)" ]; then
-    pixiekat-claude-install() {
-        # if it's not run with --force, abort and let the user know to rerun with --force
-        if [ "$1" != "--force" ]; then
-            echo "This will install Claude CLI and add it to your PATH."
-            echo "If you are sure, rerun with --force."
-            return 1
-        fi
-        echo "Installing Claude CLI..."
-        curl -fsSL https://claude.ai/install.sh | bash
+# ---------------------------------------------------------------------------
+# Claude CLI install/uninstall helpers
+#
+# Both functions are ALWAYS defined, and each checks at *call time* whether
+# claude is present. That way they stay accurate after you install or
+# uninstall mid-session, with no need to re-source .zshrc.
+# ---------------------------------------------------------------------------
+
+# Internal helper: returns 0 (true) if a `claude` executable is on $PATH.
+# $+commands[name] is zsh-native: it is 1 if `name` is in the command hash
+# table (real executables only, not aliases or functions), otherwise 0.
+_pixiekat-claude-installed() {
+    (( $+commands[claude] ))
+}
+
+pixiekat-claude-install() {
+    # Nothing to do if it's already here.
+    if _pixiekat-claude-installed; then
+        echo "Claude CLI is already installed at: ${commands[claude]}"
+        return 0
+    fi
+
+    # Safety guard: require an explicit --force before doing anything.
+    if [[ "$1" != "--force" ]]; then
+        echo "This will install Claude CLI and add it to your PATH." >&2
+        echo "If you are sure, rerun with --force." >&2
+        return 1
+    fi
+
+    echo "Installing Claude CLI..."
+
+    # pipefail makes the pipeline fail if *curl* fails (bad network, 404),
+    # not just bash. `setopt localoptions` scopes it to this function.
+    setopt localoptions pipefail
+    curl -fsSL https://claude.ai/install.sh | bash || {
+        echo "Install failed." >&2
+        return 1
     }
-fi
 
-# if claude is installed, add a function to uninstall it
-if [ -x "$(command -v claude)" ]; then
+    # Tell zsh to rescan $PATH so `claude` is found right away.
+    rehash
+}
 
-    pixiekat-claude-uninstall() {
-        # if it's not run with --force, abort and let the user know to rerun with --force
-        if [ "$1" != "--force" ]; then
-            echo "This will uninstall Claude CLI and remove all related files."
-            echo "If you are sure, rerun with --force."
-            return 1
-        fi
-        echo "Uninstalling Claude CLI..."
-        rm -f ~/.local/bin/claude
-        rm -rf ~/.local/share/claude
-        rm -rf ~/.claude
+pixiekat-claude-uninstall() {
+    # Nothing to remove if it isn't installed.
+    if ! _pixiekat-claude-installed; then
+        echo "Claude CLI doesn't appear to be installed." >&2
+        return 1
+    fi
 
-        if [ -f ~/.claude.json ]; then
-            rm ~/.claude.json
-        fi
-    }
-fi
+    # Safety guard: this deletes config and history too, so require --force.
+    if [[ "$1" != "--force" ]]; then
+        echo "This will uninstall Claude CLI and remove ALL related files," >&2
+        echo "including settings and history in ~/.claude." >&2
+        echo "If you are sure, rerun with --force." >&2
+        return 1
+    fi
+
+    echo "Uninstalling Claude CLI..."
+
+    # -f: no error if a path is already gone, so no existence checks needed.
+    rm -f  ~/.local/bin/claude      # launcher/symlink on $PATH
+    rm -rf ~/.local/share/claude    # installed versions
+    rm -rf ~/.claude                # settings, history, project data
+    rm -f  ~/.claude.json           # global config/state file
+
+    # Forget the now-deleted binary from zsh's command hash table.
+    rehash
+}
 
 # Clone like normal, then set fileMode false in the new repo.
 # Usage: gclone <url> [folder]
