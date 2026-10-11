@@ -501,25 +501,6 @@ if [ -x "$(command -v git)" ]; then
     }
 fi
 
-# ------------------------------------------------------------------
-# launch-delinea: SSH into the Delinea jump host and run "launch <id>"
-#
-# Usage:   launch-delinea 11326
-#
-# $1 = the first argument passed to the function (the target ID)
-# ------------------------------------------------------------------
-launch-delinea() {
-    # Guard clause: bail out with a friendly message if no ID was given.
-    # -z tests whether a string is empty. >&2 sends the message to stderr.
-    if [[ -z "$1" ]]; then
-        echo "usage: launch-delinea <id>" >&2
-        return 1   # non-zero = failure, so scripts/&& chains know it failed
-    fi
-
-    # delinea is found in ~/.ssh/config.d/work; see dotfiles-private/.ssh/config.d/work for details.
-    ssh delinea "launch $1"
-}
-
 # does aptitude exist? (the function needs aptitude, not just apt)
 if [ -x "$(command -v aptitude)" ]; then
     # follow the "why is this installed" chain up to its root
@@ -551,59 +532,5 @@ if [ -x "$(command -v aptitude)" ]; then
             pkg="$(echo "$result" | head -n 1 | awk '{print $2}')"
             depth=$((depth + 1))
         done
-    }
-fi
-
-# --- ModSecurity audit log helpers ------------------------------------------
-if [ -f "/var/log/apache2/modsec/modsec_audit.log" ]; then
-    _MODSEC_AUDIT_LOG="/var/log/apache2/modsec/modsec_audit.log"
-elif [ -f "/var/log/apache2/modsec_audit.log" ]; then
-    _MODSEC_AUDIT_LOG="/var/log/apache2/modsec_audit.log"
-else
-    _MODSEC_AUDIT_LOG=""
-fi
-#_MODSEC_AUDIT_LOG="/var/log/apache2/modsec/modsec_audit.log"
-
-# Only define these on machines that actually have the audit log.
-if [[ -f "$_MODSEC_AUDIT_LOG" ]]; then
-
-    # Internal helper: print every complete audit entry for one client IP,
-    # across the current log AND rotated copies (.1, .2.gz, ...).
-    # zcat -f decompresses .gz files and passes plain files through unchanged.
-    # Rotated files are read oldest-first, so output stays in time order.
-    _modsec-entries-for-ip() {
-        # List old- and new-location logs, oldest first.
-        # awk '!seen[$0]++' drops repeats while keeping order, because on
-        # servers still using the old path, both globs match the SAME files.
-        sudo bash -c 'zcat -f $(ls -1tr /var/log/apache2/modsec_audit.log* '"$_MODSEC_AUDIT_LOG"'* 2>/dev/null | awk '"'"'!seen[$0]++'"'"')' \
-        | awk -v ip="$1" '
-            /^--[0-9a-f]+-A--$/ { keep = 0; expect_a = 1; boundary = $0; next }
-            expect_a            { expect_a = 0; if ($4 == ip) { keep = 1; print boundary } }
-            keep                { print }
-        '
-    }
-
-    # What did a given IP request?
-    modsec-requests-by-ip() {
-        local ip="$1"
-        if [[ -z "$ip" ]]; then
-            echo "usage: modsec-requests-by-ip <ip>" >&2
-            return 1
-        fi
-        # Request lines look like "GET /path HTTP/2.0". Matching any
-        # uppercase method keeps PATCH, CONNECT, PROPFIND, etc. too.
-        _modsec-entries-for-ip "$ip" | grep -E '^[A-Z]+ [^ ]+ HTTP/[0-9.]+$'
-    }
-
-    # Which rules did a given IP trip, most frequent first?
-    modsec-rules-by-ip() {
-        local ip="$1"
-        if [[ -z "$ip" ]]; then
-            echo "usage: modsec-rules-by-ip <ip>" >&2
-            return 1
-        fi
-        # Rule IDs appear in the H section as [id "920210"].
-        # \K drops the [id " prefix so only the number is printed.
-        _modsec-entries-for-ip "$ip" | grep '^Message:' | grep -oP '\[id "\K\d+' | sort | uniq -c | sort -rn
     }
 fi
