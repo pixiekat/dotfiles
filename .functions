@@ -456,20 +456,28 @@ winget() {
     done
 }
 
-if [ -x "$(command -v claude)" ]; then
-
+# if claude isn't installed, add a function to install it
+if [ ! -x "$(command -v claude)" ]; then
     pixiekat-claude-install() {
-        if [ -x "$(command -v claude)" ]; then
-            echo "Claude is already installed, aborting!"
+        # if it's not run with --force, abort and let the user know to rerun with --force
+        if [ "$1" != "--force" ]; then
+            echo "This will install Claude CLI and add it to your PATH."
+            echo "If you are sure, rerun with --force."
             return 1
         fi
         echo "Installing Claude CLI..."
         curl -fsSL https://claude.ai/install.sh | bash
     }
+fi
+
+# if claude is installed, add a function to uninstall it
+if [ -x "$(command -v claude)" ]; then
 
     pixiekat-claude-uninstall() {
-        if [ ! -x "$(command -v claude)" ]; then
-            echo "Claude CLI is not installed, aborting!"
+        # if it's not run with --force, abort and let the user know to rerun with --force
+        if [ "$1" != "--force" ]; then
+            echo "This will uninstall Claude CLI and remove all related files."
+            echo "If you are sure, rerun with --force."
             return 1
         fi
         echo "Uninstalling Claude CLI..."
