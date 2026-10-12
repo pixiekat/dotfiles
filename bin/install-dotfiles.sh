@@ -235,13 +235,13 @@ for file in "${DOTFILES[@]}"; do
         # if $HAS_THUNDERBIRD is not True, skip symlinking any Thunderbird files
         *.thunderbird*)
             if ! [[ "$HAS_THUNDERBIRD" == "True" ]]; then
-                info "Thunderbird is not installed; skipping linking Thunderbird config files."
+                info "Thunderbird is not installed; skipping linking $src"
                 skip_symlink="True"
             fi
             ;;
         *.claude*)
             if ! [[ "$HAS_CLAUDE" == "True" ]]; then
-                info "Claude is not installed; skipping linking Claude config files."
+                info "Claude is not installed; skipping linking $src"
                 skip_symlink="True"
             fi
             ;;
