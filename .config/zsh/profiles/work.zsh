@@ -122,8 +122,29 @@ launch-delinea() {
         return 1   # non-zero = failure, so scripts/&& chains know it failed
     fi
 
+    # optional arguments for request-tty y|n and log-level-quiet y|n
+    # defaults are n and y, respectively. If you want to request a tty but not quiet the log, use "y n".
+    if [[ -n "$2" ]]; then
+        local request_tty="$2"
+    else
+        local request_tty="n"
+    fi
+
+    if [[ -n "$3" ]]; then
+        local log_level_quiet="$3"
+    else
+        local log_level_quiet="y"
+    fi
+
     # delinea is found in ~/.ssh/config.d/work; see dotfiles-private/.ssh/config.d/work for details.
-    ssh delinea "launch $1"
+    local args=()
+    if [[ "$request_tty" == "y" ]]; then
+        args+=("-t")  # request a pseudo-tty so we can see the output
+    fi
+    if [[ "$log_level_quiet" == "y" ]]; then
+        args+=("-q") # quiet mode, suppresses most warnings
+    fi
+    ssh "${args[@]}" delinea "launch $1"
 }
 
 # --- ModSecurity audit log helpers ------------------------------------------
