@@ -184,6 +184,12 @@ if [[ -n "$DOTFILES_PRIVATE_DIR" ]]; then
     )
 fi
 
+# Check once, up front, which optional apps are installed.
+# command -v exits 0 if the program is on PATH; we turn that into
+# "True"/"False" strings to match IS_DRY_RUN and already_linked.
+HAS_CLAUDE=$(command -v claude >/dev/null 2>&1 && echo "True" || echo "False")
+HAS_THUNDERBIRD=$(command -v thunderbird >/dev/null 2>&1 && echo "True" || echo "False")
+
 for file in "${DOTFILES[@]}"; do
     src="$DOTFILES_DIR/$file"
     # src might be in the dotfiles-private directory, so we check if it exists there first
@@ -222,8 +228,27 @@ for file in "${DOTFILES[@]}"; do
         already_linked="True"
     fi
 
+    # Decide early whether this file belongs to an app that isn't installed.
+    # This MUST happen before the backup block, otherwise we'd move the user's
+    # existing file out of the way and then never link a replacement.
+    case "$src" in
+        # if $HAS_THUNDERBIRD is not True, skip symlinking any Thunderbird files
+        *.thunderbird*)
+            if ! [[ "$HAS_THUNDERBIRD" == "True" ]]; then
+                info "Thunderbird is not installed; skipping linking Thunderbird config files."
+                skip_symlink="True"
+            fi
+            ;;
+        *.claude*)
+            if ! [[ "$HAS_CLAUDE" == "True" ]]; then
+                info "Claude is not installed; skipping linking Claude config files."
+                skip_symlink="True"
+            fi
+            ;;
+    esac
+
     # If something already exists at the destination, back it up
-    if [[ "$already_linked" == "False" && ( -e "$dest" || -L "$dest" ) ]]; then
+    if [[ "$already_linked" == "False" && "$skip_symlink" == "False" && ( -e "$dest" || -L "$dest" ) ]]; then
         if [[ "$IS_DRY_RUN" == "True" ]]; then
             info "[DRY RUN] Would back up existing: $dest to $BACKUP_DIR/$file"
         else
@@ -318,28 +343,6 @@ for file in "${DOTFILES[@]}"; do
             fi
             ;;
 
-        # thunderbird; make sure the thunderbird-bin package is installed;
-        *.thunderbird*)
-            info "Ensuring thunderbird-bin is installed"
-            if [[ -x "$(command -v thunderbird)" ]]; then
-                info "Found thunderbird; proceeding with linking Thunderbird config files."
-            else
-                info "Thunderbird is not installed; skipping linking Thunderbird config files."
-                skip_symlink="True"
-            fi
-            ;;
-
-        # claude: make sure claude is installed; if not, skip linking claude config files
-        *.claude*)
-            info "Ensuring claude is installed"
-            if [[ -x "$(command -v claude)" ]]; then
-                info "Found claude; proceeding with linking Claude config files."
-            else
-                info "Claude is not installed; skipping linking Claude config files."
-                skip_symlink="True"
-            fi
-            ;;
-
     esac
 
     # ------------------------------------------------------------------
@@ -360,8 +363,8 @@ for file in "${DOTFILES[@]}"; do
         fi
     fi
 
-    # Now it's safe to skip: hooks and perms have run, and the link is already correct
-    if [[ "$already_linked" == "True" ]]; then
+    # Now it's safe to skip: hooks and perms have run, and the link is already correct but only if skip_symlink is False. If skip_symlink is True, we don't want to link it even if it's already linked.
+    if [[ "$already_linked" == "True" && "$skip_symlink" == "False" ]]; then
         info "Already linked, skipping: $dest"
         continue
     fi
