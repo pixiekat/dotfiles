@@ -292,4 +292,14 @@ else
     compdef _weathr weathr
 fi
 
+# does bleep exist?
+if [ -x "$(command -v thebleep)" ]; then
+    # if so, define a function that wraps it and preserves the exit code of the last command.
+    bleep() {
+        TB_EXIT=$?;
+        eval "$(TB_SHELL=zsh thebleep --alias bleep)";
+        TB_EXIT="$TB_EXIT" bleep "$@";
+    }
+fi
+
 typeset -U PATH
