@@ -180,3 +180,50 @@ if [ -x /usr/sbin/iptables ]; then
     alias iptables-view-jails='sudo iptables -L -n -v | awk "/^Chain f2b-/{p=1} /^Chain ts-/{p=0} p"'
     alias iptables-view-ports='sudo iptables -L INPUT -n -v --line-numbers | grep f2b'
 fi
+
+if [ -x /usr/sbin/ipset ]; then
+    ipset-inmate-count() {
+        local jail_name="$1"
+        if [[ -z "$jail_name" ]]; then
+            echo "Usage: iptables-ipset-inmate-count <jail_name>"
+            return 1
+        fi
+
+        # Get the IP set name for the given jail
+        local ipset_name
+        ipset_name=$(sudo ipset list | grep -E "^Name: f2b-${jail_name}$" | awk '{print $2}')
+
+        if [[ -z "$ipset_name" ]]; then
+            echo "No IP set found for jail '$jail_name'."
+            return 1
+        fi
+
+        # Count the number of entries in the IP set
+        local count
+        count=$(sudo ipset list "$ipset_name" | grep -c "^[0-9]")
+
+        echo "Number of inmates in jail '$jail_name': $count"
+    }
+
+    alias ipset-check-jail-set='sudo iptables -S INPUT | grep match-set'
+
+    ipset-view-inmates() {
+        local jail_name="$1"
+        if [[ -z "$jail_name" ]]; then
+            echo "Usage: ipset-view-inmates <jail_name>"
+            return 1
+        fi
+
+        # Get the IP set name for the given jail
+        local ipset_name
+        ipset_name=$(sudo ipset list | grep -E "^Name: f2b-${jail_name}$" | awk '{print $2}')
+
+        if [[ -z "$ipset_name" ]]; then
+            echo "No IP set found for jail '$jail_name'."
+            return 1
+        fi
+
+        # List the current prisoners (IP addresses) in the IP set
+        sudo ipset list "$ipset_name"
+    }
+fi
