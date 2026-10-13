@@ -211,6 +211,8 @@ if [ -x /usr/sbin/ipset ]; then
         local jail_name="$1"
         if [[ -z "$jail_name" ]]; then
             echo "Usage: ipset-view-inmates <jail_name>"
+            echo "Use --sort to sort the output."
+            echo "Example: ipset-view-inmates <jail_name> --sort"
             return 1
         fi
 
@@ -224,7 +226,14 @@ if [ -x /usr/sbin/ipset ]; then
         fi
 
         # List the current prisoners (IP addresses) in the IP set
-        sudo ipset list "$ipset_name"
+        # if argument --sort is passed, sort the output
+        if [[ "$2" == "--sort" ]]; then
+            sudo ipset list "$ipset_name" | grep "^[0-9]" | sort -V
+        else
+            echo "Use --sort to sort the output."
+            echo "Example: ipset-view-inmates $jail_name --sort"
+            sudo ipset list "$ipset_name"
+        fi
     }
 fi
 
