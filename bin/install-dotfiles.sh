@@ -110,6 +110,7 @@ DOTFILES=(
     .local/bin/backup-immich.sh
     .local/bin/export-manual-bans.sh
     .local/bin/backup-home-to-storagebox.sh
+    .local/bin/subpipe.sh
     .local/bin/toggle-camera.sh
     .local/bin/toggle-rustdesk.sh
     .local/bin/git-check-large-files.sh
