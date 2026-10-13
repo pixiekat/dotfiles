@@ -227,3 +227,43 @@ if [ -x /usr/sbin/ipset ]; then
         sudo ipset list "$ipset_name"
     }
 fi
+
+# --- fail2ban: full jail roll call --------------------------------------------
+# Shows every fail2ban iptables chain (one rule per IP), then every fail2ban
+# ipset (hash sets for big jails like anubis-honeypot).
+#
+# Usage:
+#   jail-roll-call          # chains + a one-line summary per ipset
+#   jail-roll-call -v       # chains + full member list of every ipset
+#
+# ipsets are discovered automatically (any set named f2b-*), so moving
+# another jail to an ipset action needs no change here.
+jail-roll-call() {
+    local verbose=0
+    [[ "$1" == "-v" ]] && verbose=1
+
+    # 1. iptables chains: reuse your existing helper so the output looks
+    #    exactly like what you're used to.
+    iptables-view-jails
+
+    # 2. ipsets: list the names only (-n), keep fail2ban's (f2b-*).
+    local sets
+    sets=$(sudo ipset list -n 2>/dev/null | grep '^f2b-')
+    [[ -z "$sets" ]] && return 0   # no ipset jails yet: nothing more to show
+
+    echo
+    echo "=== ipset jails ==="
+
+    local set
+    for set in ${(f)sets}; do      # zsh: (f) splits the list on newlines
+        if (( verbose )); then
+            # Full listing: header plus every member
+            echo
+            sudo ipset list "$set"
+        else
+            local count
+            count=$(sudo ipset list -t "$set" | awk -F': ' '/^Number of entries/ {print $2}')
+            printf '%-30s %6s inmates\n' "$set" "$count"
+        fi
+    done
+}
