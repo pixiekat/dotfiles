@@ -1,6 +1,13 @@
 # Executed by login shells. Shell agnostic - no bash or zsh specific syntax.
 # Sourced by ~/.zprofile for zsh login shells.
 
+# add usr/bin, usr/local/bin, usr/sbin, and /opt/homebrew/bin to PATH if they exist
+for dir in /usr/bin /usr/local/bin /usr/sbin /opt/homebrew/bin; do
+    if [ -d "$dir" ]; then
+        PATH="$dir:$PATH"
+    fi
+done
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
