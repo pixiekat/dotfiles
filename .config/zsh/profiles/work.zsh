@@ -107,6 +107,13 @@ if [ -f /etc/hosts ]; then
     alias pixiekat-edit-hosts='sudo nano /etc/hosts'
 fi
 
+# if dnf or yum exists and apt does not, alias to apt for memory reasons.
+if [ -x "$(command -v dnf)" ] && [ ! -x "$(command -v apt)" ]; then
+    alias apt='sudo dnf'
+elif [ -x "$(command -v yum)" ] && [ ! -x "$(command -v apt)" ]; then
+    alias apt='sudo yum'
+fi
+
 # ------------------------------------------------------------------
 # launch-delinea: SSH into the Delinea jump host and run "launch <id>"
 #

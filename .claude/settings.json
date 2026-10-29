@@ -2,7 +2,12 @@
     "permissions": {
         "defaultMode": "manual"
     },
-    "theme": "dark",
-    "useAutoModeDuringPlan": false,
-    "agentPushNotifEnabled": false
+  "theme": "dark",
+  "agentPushNotifEnabled": false,
+  "useAutoModeDuringPlan": false,
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "autoCompactWindow": 400000
+    }
+  }
 }
