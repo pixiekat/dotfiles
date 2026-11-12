@@ -114,6 +114,7 @@ DOTFILES=(
     .local/bin/toggle-camera.sh
     .local/bin/toggle-rustdesk.sh
     .local/bin/git-check-large-files.sh
+    .local/bin/wow-sync.sh
     .local/share/konsole/Katy.profile
     .local/share/konsole/Katherine.profile
     .local/share/konsole/CampbellPowershell.colorscheme
