@@ -89,6 +89,20 @@ ADDONS_DELETE="${ADDONS_DELETE:-1}"
 # 1 = preview everything, write nothing (backups are skipped too).
 DRY_RUN="${DRY_RUN:-0}"
 
+# Which game folder(s) to use without asking. Empty = ask (interactive).
+# "all" = every flavour found (only used by option 4, the backup).
+# e.g. WOW_FLAVOUR=_anniversary_   or   WOW_FLAVOUR=all
+WOW_FLAVOUR="${WOW_FLAVOUR:-}"
+
+# If set, this path MUST be a live mountpoint before we write a single
+# backup. Guards against a dropped rclone mount, where the mount folder is
+# just an empty local directory and backups would land there silently.
+# e.g. BACKUP_REQUIRE_MOUNT="$HOME/mnt/storagebox"
+BACKUP_REQUIRE_MOUNT="${BACKUP_REQUIRE_MOUNT:-}"
+
+# Lock file so two runs (say, cron + you by hand) never overlap.
+LOCK_FILE="${LOCK_FILE:-${XDG_RUNTIME_DIR:-/tmp}/wow-sync.lock}"
+
 # Fail fast rather than hang forever if the peer is asleep.
 SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=8)
 
@@ -335,6 +349,15 @@ pick_flavour() {
     for b in "${there[@]}"; do [[ "$a" == "$b" ]] && common+=("$a"); done
   done
   (( ${#common[@]} )) || die "No game flavour folder exists on both machines."
+
+  # Chosen up front via WOW_FLAVOUR? Check it exists on both and use it.
+  if [[ -n "$WOW_FLAVOUR" && "$WOW_FLAVOUR" != "all" ]]; then
+    printf '%s\n' "${common[@]}" | grep -qxF -- "$WOW_FLAVOUR" \
+      || die "WOW_FLAVOUR=${WOW_FLAVOUR} isn't on both machines (shared: ${common[*]})."
+    FLAVOUR="$WOW_FLAVOUR"
+    info "Using ${FLAVOUR} (from WOW_FLAVOUR)"
+    return
+  fi
 
   if (( ${#common[@]} == 1 )); then
     FLAVOUR="${common[0]}"
@@ -594,6 +617,89 @@ sync_wtf() {
 }
 
 # -----------------------------------------------------------------------------
+#  BACKUP-ONLY MODE (option 4) — safe to run unattended from cron/systemd
+# -----------------------------------------------------------------------------
+
+##
+# Refuse to back up into a dropped mount. If BACKUP_REQUIRE_MOUNT is set
+# and isn't a live mountpoint, stop before writing anything.
+##
+check_backup_target() {
+  if [[ -n "$BACKUP_REQUIRE_MOUNT" ]] && ! mountpoint -q "$BACKUP_REQUIRE_MOUNT"; then
+    die "${BACKUP_REQUIRE_MOUNT} isn't mounted, so no backup was written. Is the rclone mount up?"
+  fi
+  if (( ! DRY_RUN )); then
+    mkdir -p "$BACKUP_ROOT" || die "Can't create ${BACKUP_ROOT}."
+    [[ -w "$BACKUP_ROOT" ]] || die "Can't write to ${BACKUP_ROOT}."
+  fi
+}
+
+##
+# Back up WTF + the TRP3 vault from every machine we can reach.
+#
+# Unlike a sync, a backup doesn't need BOTH machines: if the laptop is
+# asleep, Tyrande still gets backed up (and the reverse). A side is also
+# skipped if WoW is running there, since SavedVariables may be mid-write.
+#
+# Flavours: WOW_FLAVOUR=all backs up every flavour on each side,
+# WOW_FLAVOUR=<name> just that one, empty = ask (interactive only).
+#
+# @return int 0 if at least one machine was backed up, 1 if none were.
+##
+backup_all() {
+  check_backup_target
+  command -v rsync >/dev/null || die "rsync isn't installed here."
+
+  local side done_any=0
+  local -a flavours
+  for side in "$LOCAL_SIDE" "$PEER_SIDE"; do
+    heading "Backing up $(label "$side")"
+
+    # Reachable? (Always true for the local side.)
+    if ! is_local "$side" \
+       && ! ssh "${SSH_OPTS[@]}" "$(ssh_target "$side")" true 2>/dev/null; then
+      warn "Can't reach $(label "$side") (asleep?), skipping it this time."
+      continue
+    fi
+    if ! run_on "$side" "test -d $(printf %q "$(wow_root "$side")")"; then
+      warn "No WoW folder on $(label "$side"), skipping."
+      continue
+    fi
+    if run_on "$side" "pgrep -if 'wow[a-z]*(-64)?\.exe' >/dev/null"; then
+      warn "WoW is running on $(label "$side"), skipping so we don't catch files mid-write."
+      continue
+    fi
+
+    # Which flavours for this side?
+    if [[ "$WOW_FLAVOUR" == "all" ]]; then
+      mapfile -t flavours < <(list_flavours "$side")
+    elif [[ -n "$WOW_FLAVOUR" ]]; then
+      flavours=("$WOW_FLAVOUR")
+    else
+      # Interactive run with no WOW_FLAVOUR: the menu has already picked one.
+      flavours=("$FLAVOUR")
+    fi
+
+    for FLAVOUR in "${flavours[@]}"; do
+      run_on "$side" "test -d $(printf %q "$(wow_root "$side")/${FLAVOUR}")" || continue
+      info "Game folder: ${FLAVOUR}"
+      backup_side "$side" "wtf"
+      vault_trp3 "$side"
+      done_any=1
+    done
+  done
+
+  prune_backups
+  heading "Done"
+  if (( done_any )); then
+    ok "Backups are in ${BACKUP_ROOT}"
+  else
+    warn "Nothing was backed up this run."
+    return 1
+  fi
+}
+
+# -----------------------------------------------------------------------------
 #  MENU + MAIN
 # -----------------------------------------------------------------------------
 
@@ -638,22 +744,26 @@ main() {
   [[ "$choice" == "q" ]] && exit 0
   [[ "$choice" =~ ^[1-4]$ ]] || die "Pick 1, 2, 3, 4 or q."
 
-  preflight
-  pick_flavour
+  # Only one copy of this script at a time. flock -n fails at once rather
+  # than waiting if another run (e.g. the nightly one) holds the lock.
+  exec 9>"$LOCK_FILE"
+  flock -n 9 || die "Another wow-sync is already running."
 
-  # Option 4: back up both machines and the TRP3 vault, sync nothing.
+  # Option 4: back up whatever machines are reachable, sync nothing.
+  # Doesn't need both machines up, so it skips the full preflight.
   if [[ "$choice" == "4" ]]; then
-    local side
-    for side in "$LOCAL_SIDE" "$PEER_SIDE"; do
-      backup_side "$side" "wtf"
-      vault_trp3 "$side"
-    done
-    prune_backups
-    heading "Done"
-    ok "Backups are in ${BACKUP_ROOT}"
+    # Interactive and no WOW_FLAVOUR? Ask once, like the other options.
+    if [[ -z "$WOW_FLAVOUR" ]]; then
+      [[ -t 0 ]] || die "Running unattended: set WOW_FLAVOUR=all (or a folder name)."
+      preflight
+      pick_flavour
+    fi
+    backup_all
     return
   fi
 
+  preflight
+  pick_flavour
   pick_direction
   # Both sides must be closed: the source because it could still be
   # writing, the destination because it would overwrite on exit.
